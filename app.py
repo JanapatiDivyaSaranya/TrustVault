@@ -7,18 +7,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'trustvault-secret-key-2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trustvault.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'trustvault-secret-key-2026')
+
+# Use absolute path for SQLite database and upload folder to ensure Render production compatibility
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'trustvault.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-with app.app_context():
-    db.create_all()
 
 # --- DATABASE MODELS ---
 
@@ -66,6 +67,10 @@ def log_action(username, action, user_id=None):
     log = AuditLog(username=username, action=action, user_id=user_id)
     db.session.add(log)
     db.session.commit()
+
+# Automatically build database tables globally at boot time for Gunicorn/Render compatibility
+with app.app_context():
+    db.create_all()
 
 # --- ROUTES ---
 
@@ -180,7 +185,6 @@ def upload_file():
 def my_documents():
     my_docs = Document.query.filter_by(owner_id=current_user.id).all()
     
-    # Shared documents access
     shared_accesses = DocumentAccess.query.filter_by(user_id=current_user.id).all()
     shared_doc_ids = [sa.document_id for sa in shared_accesses]
     shared_docs = Document.query.filter(Document.id.in_(shared_doc_ids)).all() if shared_doc_ids else []
@@ -261,7 +265,6 @@ def search_documents():
 
     results = docs.all()
     
-    # Filter visible results based on RBAC permissions
     visible_results = []
     for doc in results:
         has_access = DocumentAccess.query.filter_by(document_id=doc.id, user_id=current_user.id).first()
@@ -282,8 +285,4 @@ def audit_logs():
     return render_template('logs.html', logs=logs)
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
-    if __name__ == '__main__':
     app.run(debug=True)
