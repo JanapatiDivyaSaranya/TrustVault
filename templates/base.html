@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900 text-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TrustVault{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full flex flex-col font-sans">
+    <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl font-bold text-emerald-400 tracking-wider">TrustVault</span>
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="flex items-center space-x-6 text-sm font-medium">
+            <a href="{{ url_for('dashboard') }}" class="hover:text-emerald-400 transition">Dashboard</a>
+            <a href="{{ url_for('my_documents') }}" class="hover:text-emerald-400 transition">My Documents</a>
+            <a href="{{ url_for('upload_file') }}" class="hover:text-emerald-400 transition">Upload Document</a>
+            <a href="{{ url_for('search_documents') }}" class="hover:text-emerald-400 transition">Search</a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('audit_logs') }}" class="hover:text-emerald-400 transition text-emerald-400 font-semibold">Audit Logs</a>
+            {% endif %}
+            <span class="text-gray-400">| User: <strong class="text-white">{{ current_user.username }}</strong> ({% if current_user.role == 'admin' %}<span class="text-emerald-400">Admin</span>{% else %}User{% endif %})</span>
+            <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded transition">Logout</a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded shadow-md {% if category == 'error' %}bg-red-900/80 text-red-200 border border-red-700{% else %}bg-emerald-900/80 text-emerald-200 border border-emerald-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 border-t border-gray-700 text-center text-xs text-gray-500 py-4">
+        TrustVault Platform &copy; 2026 | Snovasys Fresher Hiring Challenge
+    </footer>
+</body>
+</html>
