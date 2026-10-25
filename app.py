@@ -9,11 +9,19 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'trustvault-secret-key-2026')
 
-# Use absolute path for SQLite database and upload folder to ensure Render production compatibility
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'trustvault.db')}"
+
+# Configure writable directory paths for Render deployment
+if os.environ.get('RENDER'):
+    db_path = '/tmp/trustvault.db'
+    upload_path = '/tmp/uploads'
+else:
+    db_path = os.path.join(BASE_DIR, 'trustvault.db')
+    upload_path = os.path.join(BASE_DIR, 'uploads')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
+app.config['UPLOAD_FOLDER'] = upload_path
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -28,7 +36,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='user')  # Roles: 'admin', 'user'
+    role = db.Column(db.String(20), default='user')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -68,9 +76,12 @@ def log_action(username, action, user_id=None):
     db.session.add(log)
     db.session.commit()
 
-# Automatically build database tables globally at boot time for Gunicorn/Render compatibility
-with app.app_context():
-    db.create_all()
+# Create tables dynamically on first incoming request
+@app.before_request
+def initialize_database():
+    if not getattr(app, '_db_initialized', False):
+        db.create_all()
+        app._db_initialized = True
 
 # --- ROUTES ---
 
