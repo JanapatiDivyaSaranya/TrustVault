@@ -4,64 +4,138 @@
 
 {% block content %}
 <div class="space-y-8">
-    <div>
-        <h2 class="text-2xl font-bold text-[#5B1024] mb-4">My Vault Documents</h2>
-        {% if my_docs %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for doc in my_docs %}
-            <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] flex flex-col justify-between space-y-4 shadow-sm hover:shadow-md transition">
-                <div>
-                    <span class="text-xs font-semibold px-2.5 py-1 bg-[#F5EBE6] text-[#5B1024] rounded-md border border-[#E8C2CA]">{{ doc.category }}</span>
-                    <h3 class="text-lg font-bold text-[#5B1024] mt-3">{{ doc.title }}</h3>
-                    <p class="text-xs text-[#7A686B] mt-1">Uploaded: {{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                </div>
-                
-                <div class="border-t border-[#E5DED4] pt-3 space-y-3">
-                    <div class="flex space-x-2">
-                        <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="flex-1 bg-[#5B1024] hover:bg-[#701A31] text-white text-center py-2 rounded-lg text-xs font-semibold transition">Download</a>
-                        <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" onsubmit="return confirm('Permanently delete this file?');" class="flex-1">
-                            <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white py-2 rounded-lg text-xs font-semibold transition">Delete</button>
-                        </form>
-                    </div>
+    
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-extrabold theme-text-main flex items-center gap-2">
+                <span>📁</span> SECURE DOCUMENT MATRIX
+            </h1>
+            <p class="text-xs theme-text-muted mt-1">Manage personal vault assets and delegated permission access.</p>
+        </div>
+        <a href="{{ url_for('upload_file') }}" class="theme-accent text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-md transition text-center">
+            + Upload New Document
+        </a>
+    </div>
 
-                    <!-- Share Form -->
-                    <form action="{{ url_for('share_document', doc_id=doc.id) }}" method="POST" class="space-y-2 pt-2 border-t border-[#E5DED4]">
-                        <label class="block text-xs font-medium text-[#7A686B]">Grant Access to Tenant:</label>
-                        <div class="flex space-x-2">
-                            <select name="user_id" required class="flex-1 bg-[#F9F6F0] border border-[#E5DED4] text-xs rounded-lg text-[#2B181C] p-2 focus:outline-none focus:border-[#5B1024]">
-                                {% for user in all_users %}
-                                <option value="{{ user.id }}">{{ user.username }} ({{ user.role|capitalize }})</option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit" class="bg-[#701A31] hover:bg-[#83223A] text-white px-3 py-2 rounded-lg text-xs font-semibold transition">Share</button>
+    <!-- Personal Documents Section -->
+    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md">
+        <h2 class="text-lg font-bold theme-text-main mb-4 flex items-center gap-2">
+            <span>🔐</span> Owned Documents
+        </h2>
+
+        {% if my_docs %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b theme-border theme-text-muted uppercase tracking-wider text-[10px]">
+                        <th class="py-3 px-4">Title</th>
+                        <th class="py-3 px-4">Category</th>
+                        <th class="py-3 px-4">Uploaded</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y theme-border theme-text-main">
+                    {% for doc in my_docs %}
+                    <tr class="hover:bg-black/10 transition">
+                        <td class="py-3 px-4 font-semibold">{{ doc.title }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">
+                                {{ doc.category }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 theme-text-muted">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="py-3 px-4 text-right space-x-2">
+                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/60 hover:bg-emerald-700 text-white font-semibold transition">
+                                Download
+                            </a>
+                            <button onclick="toggleShareModal('shareModal-{{ doc.id }}')" class="px-3 py-1.5 rounded-lg bg-black/30 border theme-border hover:bg-black/50 transition">
+                                Share Access
+                            </button>
+                            <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" class="inline" onsubmit="return confirm('Permanently delete this vault asset?');">
+                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-800/60 hover:bg-red-800 text-white font-semibold transition">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Share Modal for Document -->
+                    <div id="shareModal-{{ doc.id }}" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div class="theme-bg-card max-w-md w-full p-6 rounded-2xl border theme-border shadow-2xl space-y-4">
+                            <h3 class="text-base font-bold theme-text-main">Delegate Permissions for '{{ doc.title }}'</h3>
+                            <form action="{{ url_for('share_document', doc_id=doc.id) }}" method="POST" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold theme-text-muted mb-1">Select Target User</label>
+                                    <select name="user_id" required class="w-full px-3 py-2 theme-input border theme-border rounded-xl text-xs theme-text-main">
+                                        {% for u in all_users %}
+                                        <option value="{{ u.id }}" class="text-black">{{ u.username }} ({{ u.email }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" name="can_edit" id="edit-{{ doc.id }}" class="rounded theme-border text-[#C85A17]">
+                                    <label for="edit-{{ doc.id }}" class="text-xs theme-text-muted">Grant Edit Permissions (Default: Read-Only)</label>
+                                </div>
+                                <div class="flex justify-end gap-2 pt-2">
+                                    <button type="button" onclick="toggleShareModal('shareModal-{{ doc.id }}')" class="px-4 py-2 rounded-xl border theme-border text-xs font-semibold theme-text-muted">Cancel</button>
+                                    <button type="submit" class="theme-accent text-white px-4 py-2 rounded-xl text-xs font-semibold">Grant Access</button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
-        <p class="text-[#7A686B] bg-white p-6 rounded-2xl border border-[#E5DED4]">No vault documents uploaded yet.</p>
+        <p class="text-xs theme-text-muted italic py-4">No owned documents found in your vault workspace.</p>
         {% endif %}
     </div>
 
-    <!-- Shared With Me Section -->
-    {% if shared_docs %}
-    <div class="pt-6 border-t border-[#E5DED4]">
-        <h2 class="text-2xl font-bold text-[#5B1024] mb-4">Documents Shared With Me</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for doc in shared_docs %}
-            <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] flex flex-col justify-between space-y-4 shadow-sm">
-                <div>
-                    <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-md border border-emerald-200">Shared Access</span>
-                    <h3 class="text-lg font-bold text-[#5B1024] mt-3">{{ doc.title }}</h3>
-                    <p class="text-xs text-[#7A686B] mt-1">Category: {{ doc.category }}</p>
-                </div>
-                <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="bg-[#5B1024] hover:bg-[#701A31] text-white text-center py-2 rounded-lg text-xs font-semibold transition">Download Secure File</a>
-            </div>
-            {% endfor %}
+    <!-- Shared Documents Section -->
+    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md">
+        <h2 class="text-lg font-bold theme-text-main mb-4 flex items-center gap-2">
+            <span>🤝</span> Shared Vault Assets
+        </h2>
+
+        {% if shared_docs %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b theme-border theme-text-muted uppercase tracking-wider text-[10px]">
+                        <th class="py-3 px-4">Title</th>
+                        <th class="py-3 px-4">Category</th>
+                        <th class="py-3 px-4">Owner</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y theme-border theme-text-main">
+                    {% for doc in shared_docs %}
+                    <tr class="hover:bg-black/10 transition">
+                        <td class="py-3 px-4 font-semibold">{{ doc.title }}</td>
+                        <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">{{ doc.category }}</span></td>
+                        <td class="py-3 px-4 theme-text-muted">{{ doc.owner.username }}</td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/60 hover:bg-emerald-700 text-white font-semibold transition">
+                                Download
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        {% else %}
+        <p class="text-xs theme-text-muted italic py-4">No documents have been shared with your account yet.</p>
+        {% endif %}
     </div>
-    {% endif %}
+
 </div>
+
+<script>
+function toggleShareModal(modalId) {
+    document.getElementById(modalId).classList.toggle('hidden');
+}
+</script>
 {% endblock %}
