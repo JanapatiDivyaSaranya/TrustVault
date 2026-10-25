@@ -17,6 +17,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+with app.app_context():
+    db.create_all()
 
 # --- DATABASE MODELS ---
 
@@ -282,4 +284,6 @@ def audit_logs():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+    app.run(debug=True)
+    if __name__ == '__main__':
     app.run(debug=True)
