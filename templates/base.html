@@ -8,11 +8,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
         [data-theme="emerald"] {
             --bg-main: #031D16; --bg-card: #062B21; --text-main: #E2F1ED; --text-muted: #6B9B8E;
             --border-color: #0E4839; --accent-primary: #10B981; --accent-hover: #059669;
-            --nav-bg: #021712; --nav-text: #E2F1ED; --nav-border: #0E4839; --badge-bg: #F59E0B;
+            --nav-bg: #021712; --nav-text: #E2F1ED; --nav-border: #0E4839; --input-bg: #04221A;
         }
+        [data-theme="default"] {
+            --bg-main: #1E2229; --bg-card: #282C34; --text-main: #F4F5F7; --text-muted: #A0A8B6;
+            --border-color: #3B404A; --accent-primary: #C85A17; --accent-hover: #A0440F;
+            --nav-bg: #16191E; --nav-text: #FFFFFF; --nav-border: #2D323C; --input-bg: #1E2229;
+        }
+        [data-theme="burgundy"] {
+            --bg-main: #F9F6F0; --bg-card: #FFFFFF; --text-main: #2B181C; --text-muted: #7A686B;
+            --border-color: #E5DED4; --accent-primary: #5B1024; --accent-hover: #701A31;
+            --nav-bg: #5B1024; --nav-text: #FFFFFF; --nav-border: #3D0A17; --input-bg: #F9F6F0;
+        }
+        [data-theme="light"] {
+            --bg-main: #F3F4F6; --bg-card: #FFFFFF; --text-main: #111827; --text-muted: #6B7280;
+            --border-color: #E5E7EB; --accent-primary: #2563EB; --accent-hover: #1D4ED8;
+            --nav-bg: #FFFFFF; --nav-text: #111827; --nav-border: #E5E7EB; --input-bg: #F9FAFB;
+        }
+        [data-theme="dark"] {
+            --bg-main: #0F172A; --bg-card: #1E293B; --text-main: #F8FAFC; --text-muted: #94A3B8;
+            --border-color: #334155; --accent-primary: #0EA5E9; --accent-hover: #0284C7;
+            --nav-bg: #020617; --nav-text: #F8FAFC; --nav-border: #1E293B; --input-bg: #0F172A;
+        }
+
         .theme-bg-main { background-color: var(--bg-main); }
         .theme-bg-card { background-color: var(--bg-card); }
         .theme-text-main { color: var(--text-main); }
@@ -20,6 +42,7 @@
         .theme-border { border-color: var(--border-color); }
         .theme-accent { background-color: var(--accent-primary); }
         .theme-nav { background-color: var(--nav-bg); color: var(--nav-text); border-color: var(--nav-border); }
+        .theme-input { background-color: var(--input-bg); }
     </style>
 </head>
 <body class="theme-bg-main theme-text-main min-h-screen flex flex-col font-sans">
@@ -28,14 +51,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 
+                <!-- Brand & Logo (Emerald Edition removed) -->
                 <div class="flex items-center space-x-3">
                     <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-black text-sm shadow-md">TV</div>
                         <div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-xl font-black tracking-tight">TRUST<span class="text-emerald-400">VAULT</span></span>
-                                <span class="text-[9px] bg-emerald-900/80 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/40 uppercase">EMERALD EDITION</span>
-                            </div>
+                            <span class="text-xl font-black tracking-tight">TRUST<span class="text-emerald-400">VAULT</span></span>
                             <p class="text-[10px] theme-text-muted hidden sm:block">Zero-Trust Enterprise Multi-Tenant Security Governance</p>
                         </div>
                     </a>
@@ -55,7 +76,31 @@
                     </a>
                     {% endif %}
 
-                    <!-- Security Alert Bell (Badge Removed) -->
+                    <!-- Roles on Headline (Admin, User, Viewer Simulation Switcher) -->
+                    <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border theme-border text-xs">
+                        <span class="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">ROLE:</span>
+                        <div class="flex items-center gap-1">
+                            <form action="{{ url_for('switch_role', new_role='admin') }}" method="POST" class="inline">
+                                <button type="submit" class="px-2.5 py-0.5 rounded-lg font-bold text-xs transition-all {% if current_user.role == 'admin' %}bg-amber-500 text-black shadow-sm{% else %}theme-text-muted opacity-60 hover:opacity-100{% endif %}">
+                                    Admin
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('switch_role', new_role='user') }}" method="POST" class="inline">
+                                <button type="submit" class="px-2.5 py-0.5 rounded-lg font-bold text-xs transition-all {% if current_user.role == 'user' %}bg-emerald-500 text-black shadow-sm{% else %}theme-text-muted opacity-60 hover:opacity-100{% endif %}">
+                                    User
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('switch_role', new_role='viewer') }}" method="POST" class="inline">
+                                <button type="submit" class="px-2.5 py-0.5 rounded-lg font-bold text-xs transition-all {% if current_user.role == 'viewer' %}bg-sky-500 text-black shadow-sm{% else %}theme-text-muted opacity-60 hover:opacity-100{% endif %}">
+                                    Viewer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Security Alert Bell -->
                     <div class="relative">
                         <button onclick="toggleAlertsDropdown()" class="p-2.5 rounded-xl bg-black/30 border theme-border text-amber-400 hover:bg-black/50 transition">
                             🔔
@@ -79,6 +124,17 @@
 
                     <a href="{{ url_for('logout') }}" class="bg-red-900/60 hover:bg-red-800 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-red-500/30 transition">Logout</a>
                     {% endif %}
+
+                    <!-- Full Multiple Themes Dropdown Restored -->
+                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-xs px-2.5 py-2 rounded-xl border theme-border focus:outline-none" style="color: var(--nav-text);">
+                        <option value="system" class="text-black">💻 System Default</option>
+                        <option value="emerald" class="text-black">Emerald Governance</option>
+                        <option value="default" class="text-black">Graphite & Orange</option>
+                        <option value="burgundy" class="text-black">Burgundy & Gold</option>
+                        <option value="light" class="text-black">Clean Light Mode</option>
+                        <option value="dark" class="text-black">Deep Dark Cyber</option>
+                    </select>
+
                 </div>
 
             </div>
@@ -106,9 +162,35 @@
     </footer>
 
     <script>
+        function applySystemTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const targetTheme = prefersDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+        }
+
+        function changeTheme(themeName) {
+            localStorage.setItem('trustvault_theme', themeName);
+            document.getElementById('themeSelector').value = themeName;
+
+            if (themeName === 'system') {
+                applySystemTheme();
+            } else {
+                document.documentElement.setAttribute('data-theme', themeName);
+            }
+        }
+
         function toggleAlertsDropdown() {
             document.getElementById('alertsDropdown').classList.toggle('hidden');
         }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (localStorage.getItem('trustvault_theme') === 'system') {
+                applySystemTheme();
+            }
+        });
+
+        const savedTheme = localStorage.getItem('trustvault_theme') || 'emerald';
+        changeTheme(savedTheme);
     </script>
 </body>
 </html>

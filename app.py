@@ -70,7 +70,7 @@ class Document(db.Model):
     title = db.Column(db.String(120), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
     category = db.Column(db.String(50), nullable=False, default='General')
-    file_size = db.Column(db.Integer, default=0) # stored in bytes
+    file_size = db.Column(db.Integer, default=0)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     owner = db.relationship('User', backref=db.backref('documents', lazy=True))
@@ -155,6 +155,16 @@ def register():
 
     return render_template('register.html')
 
+@app.route('/switch-role/<new_role>', methods=['POST'])
+@login_required
+def switch_role(new_role):
+    if new_role in ['admin', 'user', 'viewer']:
+        current_user.role = new_role
+        db.session.commit()
+        log_action(username=current_user.username, action=f"Switched active role simulation to '{new_role}'", user_id=current_user.id)
+        flash(f"Active role switched to {new_role.capitalize()}.", 'success')
+    return redirect(request.referrer or url_for('dashboard'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -181,7 +191,7 @@ def login():
 def logout():
     log_action(username=current_user.username, action="User session logged out", user_id=current_user.id)
     logout_user()
-    flash('Logged successfully out.', 'success')
+    flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
 
 @app.route('/dashboard')
@@ -190,15 +200,25 @@ def dashboard():
     total_docs = Document.query.count()
     total_users = User.query.count()
     
-    # Calculate storage consumption against a 100MB limit (104857600 bytes)
     total_bytes = db.session.query(db.func.sum(Document.file_size)).scalar() or 0
     max_storage_bytes = 100 * 1024 * 1024 
     storage_percentage = min(round((total_bytes / max_storage_bytes) * 100, 1), 100.0)
     storage_used_mb = round(total_bytes / (1024 * 1024), 2)
 
-    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(5).all()
+    # Role-based document visibility: Admin sees all, User sees owned, Viewer sees shared
+    if current_user.role == 'admin':
+        recent_docs = Document.query.order_by(Document.uploaded_at.desc()).limit(5).all()
+    elif current_user.role == 'user':
+        recent_docs = Document.query.filter_by(owner_id=current_user.id).order_by(Document.uploaded_at.desc()).limit(5).all()
+    else:
+        shared_accesses = DocumentAccess.query.filter_by(user_id=current_user.id, can_read=True).all()
+        shared_doc_ids = [sa.document_id for sa in shared_accesses]
+        recent_docs = Document.query.filter(Document.id.in_(shared_doc_ids)).order_by(Document.uploaded_at.desc()).limit(5).all() if shared_doc_ids else []
+
+    recent_logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(5).all()
     return render_template('dashboard.html', total_docs=total_docs, total_users=total_users, 
-                           storage_percentage=storage_percentage, storage_used_mb=storage_used_mb, logs=logs)
+                           storage_percentage=storage_percentage, storage_used_mb=storage_used_mb, 
+                           recent_docs=recent_docs, recent_logs=recent_logs)
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -209,7 +229,7 @@ def upload_file():
 
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file payload selected.', 'error')
+            flash('No file selected.', 'error')
             return redirect(request.url)
         
         file = request.files['file']
@@ -243,13 +263,16 @@ def upload_file():
 @app.route('/my-documents')
 @login_required
 def my_documents():
-    my_docs = Document.query.filter_by(owner_id=current_user.id).all()
+    if current_user.role == 'admin':
+        my_docs = Document.query.all() # Admin accesses all documents
+    else:
+        my_docs = Document.query.filter_by(owner_id=current_user.id).all()
+
     shared_accesses = DocumentAccess.query.filter_by(user_id=current_user.id, can_read=True).all()
     shared_doc_ids = [sa.document_id for sa in shared_accesses]
     shared_docs = Document.query.filter(Document.id.in_(shared_doc_ids)).all() if shared_doc_ids else []
     all_users = User.query.filter(User.id != current_user.id).all()
     
-    # Fetch existing permissions for document matrix configuration
     doc_permissions = {}
     for doc in my_docs:
         doc_permissions[doc.id] = {sa.user_id: sa for sa in DocumentAccess.query.filter_by(document_id=doc.id).all()}
@@ -265,7 +288,7 @@ def share_document(doc_id):
 
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id and current_user.role != 'admin':
-        flash('Access denied. Only document owners or admins can manage permissions.', 'error')
+        flash('Access denied.', 'error')
         return redirect(url_for('my_documents'))
 
     target_user_id = request.form.get('user_id')
@@ -283,7 +306,7 @@ def share_document(doc_id):
         access.can_delete = can_delete
     
     db.session.commit()
-    log_action(username=current_user.username, action=f"Updated granular file-level matrix permissions for document ID {doc_id}", user_id=current_user.id)
+    log_action(username=current_user.username, action=f"Updated file-level matrix permissions for document ID {doc_id}", user_id=current_user.id)
     flash('File access control matrix updated successfully.', 'success')
     return redirect(url_for('my_documents'))
 
@@ -311,7 +334,7 @@ def delete_document(doc_id):
     access = DocumentAccess.query.filter_by(document_id=doc_id, user_id=current_user.id, can_delete=True).first()
 
     if doc.owner_id != current_user.id and current_user.role != 'admin' and not access:
-        flash('Access denied. You do not hold delete privileges for this asset.', 'error')
+        flash('Access denied.', 'error')
         return redirect(url_for('my_documents'))
 
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], doc.filename)

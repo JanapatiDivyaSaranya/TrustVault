@@ -70,5 +70,52 @@
         </div>
     </div>
 
+    <!-- Recently Opened / Uploaded Documents List (Role-Categorized) -->
+    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold theme-text-main flex items-center gap-2">
+                <span>📁</span> Recent Vault Activity & Documents (Role: {{ current_user.role|upper }})
+            </h3>
+            <a href="{{ url_for('my_documents') }}" class="text-xs text-amber-400 font-semibold hover:underline">View All Documents →</a>
+        </div>
+
+        {% if recent_docs %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b theme-border theme-text-muted uppercase tracking-wider text-[10px]">
+                        <th class="py-3 px-4">Title</th>
+                        <th class="py-3 px-4">Category</th>
+                        <th class="py-3 px-4">Owner</th>
+                        <th class="py-3 px-4">Uploaded At</th>
+                        <th class="py-3 px-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y theme-border theme-text-main">
+                    {% for doc in recent_docs %}
+                    <tr class="hover:bg-black/10 transition">
+                        <td class="py-3 px-4 font-semibold">{{ doc.title }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">
+                                {{ doc.category }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 theme-text-muted">{{ doc.owner.username }}</td>
+                        <td class="py-3 px-4 theme-text-muted">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/65 hover:bg-emerald-700 text-white font-semibold transition">
+                                Download
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-xs theme-text-muted italic py-4">No recent documents available for your current role view.</p>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
