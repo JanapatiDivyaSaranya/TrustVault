@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TrustVault{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+        <h1 class="text-3xl font-bold text-emerald-400">Welcome to TrustVault, {{ current_user.username }}!</h1>
+        <p class="text-gray-400 mt-2">Role: <strong class="text-white capitalize">{{ current_user.role }}</strong></p>
+    </div>
+</div>
+{% endblock %}
