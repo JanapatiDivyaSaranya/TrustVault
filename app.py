@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
@@ -8,6 +9,12 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'trustvault-secret-key-2026')
+
+# Max upload size: 16 MB
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+# Allowed file extensions for strict upload validation
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'xlsx'}
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -29,6 +36,37 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# --- HELPER FUNCTIONS ---
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def validate_password_strength(password):
+    """
+    Enforces password security:
+    - At least 8 characters
+    - At least 1 uppercase letter
+    - At least 1 lowercase letter
+    - At least 1 digit
+    - At least 1 special character
+    """
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter."
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter."
+    if not re.search(r'\d', password):
+        return False, "Password must contain at least one number."
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False, "Password must contain at least one special character (!@#$%^&*)."
+    return True, "Password is strong."
+
+def get_client_ip():
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0]
+    return request.remote_addr or '127.0.0.1'
+
 # --- DATABASE MODELS ---
 
 class User(UserMixin, db.Model):
@@ -36,7 +74,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='user')
+    role = db.Column(db.String(20), default='user')  # 'admin' or 'user'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -65,6 +103,7 @@ class AuditLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     username = db.Column(db.String(80), nullable=False)
     action = db.Column(db.String(255), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 @login_manager.user_loader
@@ -72,11 +111,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def log_action(username, action, user_id=None):
-    log = AuditLog(username=username, action=action, user_id=user_id)
+    ip = get_client_ip()
+    log = AuditLog(username=username, action=f"{action} [IP: {ip}]", ip_address=ip, user_id=user_id)
     db.session.add(log)
     db.session.commit()
 
-# Create tables dynamically on first incoming request
+# Dynamic database creation on first request
 @app.before_request
 def initialize_database():
     if not getattr(app, '_db_initialized', False):
@@ -101,8 +141,15 @@ def register():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
+        # 1. Enforce password complexity
+        is_strong, msg = validate_password_strength(password)
+        if not is_strong:
+            flash(msg, 'error')
+            return redirect(url_for('register'))
+
+        # 2. Check existing user
         if User.query.filter((User.username == username) | (User.email == email)).first():
-            flash('Username or email already exists.', 'error')
+            flash('Username or email address already registered.', 'error')
             return redirect(url_for('register'))
 
         user_count = User.query.count()
@@ -113,8 +160,8 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        log_action(username=new_user.username, action=f"User registered with role '{role}'", user_id=new_user.id)
-        flash('Registration successful! Please log in.', 'success')
+        log_action(username=new_user.username, action=f"Account created with role '{role}'", user_id=new_user.id)
+        flash('Account created successfully! Please log in.', 'success')
         return redirect(url_for('login'))
 
     return render_template('register.html')
@@ -131,18 +178,19 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
-            log_action(username=user.username, action="User logged in", user_id=user.id)
+            log_action(username=user.username, action="Successful login authentication", user_id=user.id)
             flash('Logged in successfully!', 'success')
             return redirect(url_for('dashboard'))
 
-        flash('Invalid username or password.', 'error')
+        log_action(username=username or "Anonymous", action="Failed login authentication attempt")
+        flash('Invalid username or password credentials.', 'error')
 
     return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
-    log_action(username=current_user.username, action="User logged out", user_id=current_user.id)
+    log_action(username=current_user.username, action="User session logged out", user_id=current_user.id)
     logout_user()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
@@ -160,7 +208,7 @@ def dashboard():
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part selected.', 'error')
+            flash('No file payload selected.', 'error')
             return redirect(request.url)
         
         file = request.files['file']
@@ -168,7 +216,13 @@ def upload_file():
         category = request.form.get('category', 'General').strip()
 
         if file.filename == '':
-            flash('No selected file.', 'error')
+            flash('No file selected.', 'error')
+            return redirect(request.url)
+
+        # File type restriction check
+        if not allowed_file(file.filename):
+            flash(f"Invalid file type. Allowed extensions: {', '.join(ALLOWED_EXTENSIONS)}", 'error')
+            log_action(username=current_user.username, action=f"Blocked invalid file upload attempt: '{file.filename}'", user_id=current_user.id)
             return redirect(request.url)
 
         filename = secure_filename(file.filename)
@@ -185,7 +239,7 @@ def upload_file():
         db.session.add(new_doc)
         db.session.commit()
 
-        log_action(username=current_user.username, action=f"Uploaded document '{new_doc.title}'", user_id=current_user.id)
+        log_action(username=current_user.username, action=f"Uploaded secure document '{new_doc.title}'", user_id=current_user.id)
         flash('Document uploaded successfully!', 'success')
         return redirect(url_for('my_documents'))
 
@@ -209,7 +263,7 @@ def share_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id and current_user.role != 'admin':
         flash('Access denied. Only owner or admin can manage document permissions.', 'error')
-        log_action(username=current_user.username, action=f"Unauthorized share attempt on doc ID {doc_id}", user_id=current_user.id)
+        log_action(username=current_user.username, action=f"Unauthorized share access attempt on document ID {doc_id}", user_id=current_user.id)
         return redirect(url_for('my_documents'))
 
     target_user_id = request.form.get('user_id')
@@ -220,10 +274,10 @@ def share_document(doc_id):
         access = DocumentAccess(document_id=doc_id, user_id=target_user_id, can_edit=can_edit)
         db.session.add(access)
         db.session.commit()
-        log_action(username=current_user.username, action=f"Granted access for doc '{doc.title}' to user ID {target_user_id}", user_id=current_user.id)
+        log_action(username=current_user.username, action=f"Granted document access for '{doc.title}' to user ID {target_user_id}", user_id=current_user.id)
         flash('Access permission granted successfully.', 'success')
     else:
-        flash('User already has access to this document.', 'error')
+        flash('Target user already holds access permissions for this document.', 'error')
 
     return redirect(url_for('my_documents'))
 
@@ -234,11 +288,11 @@ def download_document(doc_id):
     has_access = DocumentAccess.query.filter_by(document_id=doc_id, user_id=current_user.id).first()
     
     if doc.owner_id != current_user.id and current_user.role != 'admin' and not has_access:
-        log_action(username=current_user.username, action=f"Unauthorized download attempt on doc '{doc.title}'", user_id=current_user.id)
-        flash('Access denied. You do not have permission to view or download this document.', 'error')
+        log_action(username=current_user.username, action=f"Unauthorized download attempt on document '{doc.title}'", user_id=current_user.id)
+        flash('Access denied. You do not hold permissions to view or download this document.', 'error')
         return redirect(url_for('my_documents'))
 
-    log_action(username=current_user.username, action=f"Downloaded document '{doc.title}'", user_id=current_user.id)
+    log_action(username=current_user.username, action=f"Downloaded secure document '{doc.title}'", user_id=current_user.id)
     return send_from_directory(app.config['UPLOAD_FOLDER'], doc.filename, as_attachment=True)
 
 @app.route('/delete/<int:doc_id>', methods=['POST'])
@@ -246,8 +300,8 @@ def download_document(doc_id):
 def delete_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id and current_user.role != 'admin':
-        log_action(username=current_user.username, action=f"Unauthorized delete attempt on doc '{doc.title}'", user_id=current_user.id)
-        flash('Access denied. You do not have permission to delete this document.', 'error')
+        log_action(username=current_user.username, action=f"Unauthorized delete attempt on document '{doc.title}'", user_id=current_user.id)
+        flash('Access denied. You do not hold permissions to delete this document.', 'error')
         return redirect(url_for('my_documents'))
 
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], doc.filename)
@@ -288,8 +342,8 @@ def search_documents():
 @login_required
 def audit_logs():
     if current_user.role != 'admin':
-        log_action(username=current_user.username, action="Unauthorized access attempt to Audit Logs page", user_id=current_user.id)
-        flash('Access denied. Audit logs are restricted to Admin users only.', 'error')
+        log_action(username=current_user.username, action="Unauthorized access attempt to Audit Logs portal", user_id=current_user.id)
+        flash('Access denied. Audit logs are restricted to Admin role users only.', 'error')
         return redirect(url_for('dashboard'))
 
     logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
