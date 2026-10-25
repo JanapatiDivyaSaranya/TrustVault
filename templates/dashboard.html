@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <!-- Analytics Stat Cards with Storage Quota Progress Indicator -->
+    <!-- Analytics Stat Cards & Storage Quota -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex justify-between items-center">
             <div>
@@ -56,7 +56,6 @@
             </div>
         </div>
 
-        <!-- Storage Quota Progress Indicator Card -->
         <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex flex-col justify-between">
             <div>
                 <div class="flex justify-between items-center mb-1">
@@ -67,59 +66,6 @@
             </div>
             <div class="w-full bg-black/40 rounded-full h-2.5 mt-4 overflow-hidden border theme-border">
                 <div class="bg-gradient-to-r from-emerald-500 to-amber-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ storage_percentage }}%"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- RBAC Governance Matrix -->
-    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h3 class="text-lg font-bold theme-text-main flex items-center gap-2">
-                    <span>🔐</span> ROLE-BASED ACCESS CONTROL (RBAC) GOVERNANCE
-                </h3>
-                <p class="text-xs theme-text-muted mt-0.5">Access control rules enforced automatically across all database models and endpoint controllers.</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="px-3 py-1 rounded-lg bg-amber-500 text-black font-extrabold text-xs">Admin Role</span>
-                    <span class="text-amber-400 text-lg">👑</span>
-                </div>
-                <p class="text-xs theme-text-muted">Full tenant governance authority across all user uploaded documents and system audit logs.</p>
-                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li>✓ Read / Download / Delete Any Asset</li>
-                    <li>✓ Manage Granular File Matrices</li>
-                    <li>✓ View Real-Time Audit Telemetry</li>
-                </ul>
-            </div>
-
-            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs">Standard User</span>
-                    <span class="text-emerald-400 text-lg">👤</span>
-                </div>
-                <p class="text-xs theme-text-muted">Owner of specific documents with explicit rights to delegate file-level access permissions.</p>
-                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li>✓ Upload & Download Personal Files</li>
-                    <li>✓ Configure File-Level Matrices</li>
-                    <li class="text-red-400">✕ No Global Audit Console Access</li>
-                </ul>
-            </div>
-
-            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="px-3 py-1 rounded-lg bg-sky-700 text-white font-extrabold text-xs">Viewer Role</span>
-                    <span class="text-sky-400 text-lg">👁️</span>
-                </div>
-                <p class="text-xs theme-text-muted">Read-only participant granted explicit permission to specific shared vault assets.</p>
-                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li>✓ View & Download Shared Assets</li>
-                    <li class="text-red-400">🚫 Cannot Delete Documents</li>
-                    <li class="text-red-400">🚫 Unscoped Panels Hidden</li>
-                </ul>
             </div>
         </div>
     </div>
