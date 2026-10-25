@@ -4,63 +4,116 @@
 
 {% block content %}
 <div class="space-y-8">
-    <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-[#5B1024]">Welcome back, {{ current_user.username }}!</h1>
-            <p class="text-[#7A686B] mt-1 text-sm">Multi-Tenant Document Security & Governance Portal</p>
+
+    <!-- Hero Banner -->
+    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-lg relative overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● LIVE VAULT ACTIVE</span>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">ACTIVE ROLE: {{ current_user.role|upper }}</span>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight theme-text-main">GOVERNANCE & SECURITY PORTAL</h1>
+                <p class="text-xs theme-text-muted mt-1 max-w-2xl">
+                    Encrypted document management system built with Flask, SQLAlchemy, and Gunicorn. Enforces Role-Based Access Control (RBAC) and automated audit log registration.
+                </p>
+            </div>
+            
+            <!-- Compliance Circle -->
+            <div class="flex items-center gap-4 bg-black/20 p-4 rounded-xl border theme-border">
+                <div class="w-16 h-16 rounded-full border-4 border-amber-500 flex items-center justify-center font-extrabold text-sm text-amber-400">
+                    99.8%
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-wider theme-text-muted">COMPLIANCE SCORE</p>
+                    <p class="text-base font-bold theme-text-main">Zero-Trust Rating</p>
+                    <p class="text-[11px] text-emerald-400">AES-256 Enforced</p>
+                </div>
+            </div>
         </div>
-        <span class="px-4 py-2 bg-[#F5EBE6] border border-[#E8C2CA] text-[#5B1024] font-semibold rounded-xl text-sm">
-            Role: {{ current_user.role|capitalize }}
-        </span>
     </div>
 
-    <!-- Analytics Matrix -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm">
-            <h3 class="text-[#7A686B] text-xs font-semibold uppercase tracking-wider">Total Vault Documents</h3>
-            <p class="text-4xl font-extrabold text-[#5B1024] mt-2">{{ total_docs }}</p>
+    <!-- Analytics Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex justify-between items-center">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">TOTAL ENCRYPTED VAULTS</p>
+                <p class="text-4xl font-extrabold theme-text-main mt-2">{{ total_docs }}</p>
+                <p class="text-xs text-emerald-400 mt-2">↗ +{{ total_docs }} active assets registered</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                🔒
+            </div>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm">
-            <h3 class="text-[#7A686B] text-xs font-semibold uppercase tracking-wider">Registered Tenants</h3>
-            <p class="text-4xl font-extrabold text-[#5B1024] mt-2">{{ total_users }}</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm">
-            <h3 class="text-[#7A686B] text-xs font-semibold uppercase tracking-wider">Security Engine Status</h3>
-            <p class="text-xl font-bold text-emerald-700 mt-2 flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span> AES-256 Enforced
-            </p>
+
+        <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex justify-between items-center">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">ACTIVE TENANTS / USERS</p>
+                <p class="text-4xl font-extrabold theme-text-main mt-2">{{ total_users }}</p>
+                <p class="text-xs theme-text-muted mt-2">RBAC Scoped Access Control</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                👥
+            </div>
         </div>
     </div>
 
-    <!-- Activity Stream -->
-    <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-[#5B1024]">Recent Security Audit Activity</h2>
-            {% if current_user.role == 'admin' %}
-            <a href="{{ url_for('audit_logs') }}" class="text-xs text-[#701A31] hover:underline font-semibold">View System Logs &rarr;</a>
-            {% endif %}
+    <!-- Role-Based Access Control (RBAC) Matrix Cards -->
+    <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-lg font-bold theme-text-main flex items-center gap-2">
+                    <span>🔐</span> ROLE-BASED ACCESS CONTROL (RBAC) GOVERNANCE
+                </h3>
+                <p class="text-xs theme-text-muted mt-0.5">Access control rules enforced automatically across all database models and endpoint controllers.</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">Simulation Mode: {{ current_user.role|upper }}</span>
         </div>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-[#2B181C]">
-                <thead class="bg-[#F9F6F0] text-[#5B1024] uppercase text-xs font-semibold">
-                    <tr>
-                        <th class="py-3 px-4 rounded-l-lg">Time</th>
-                        <th class="py-3 px-4">User</th>
-                        <th class="py-3 px-4 rounded-r-lg">Action Performed</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-[#E5DED4]">
-                    {% for log in logs %}
-                    <tr class="hover:bg-[#F9F6F0]/60 transition">
-                        <td class="py-3 px-4 font-mono text-xs text-[#7A686B]">{{ log.timestamp.strftime('%H:%M:%S') }}</td>
-                        <td class="py-3 px-4 font-semibold text-[#5B1024]">{{ log.username }}</td>
-                        <td class="py-3 px-4 text-[#2B181C]">{{ log.action }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Admin Role Card -->
+            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="px-3 py-1 rounded-lg bg-amber-500 text-black font-extrabold text-xs">Admin Role</span>
+                    <span class="text-amber-400 text-lg">👑</span>
+                </div>
+                <p class="text-xs theme-text-muted">Full tenant governance authority across all user uploaded documents and system audit logs.</p>
+                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
+                    <li class="flex items-center gap-2"><span>✓</span> Read / Download / Delete Any Asset</li>
+                    <li class="flex items-center gap-2"><span>✓</span> Manage Permission Sharing</li>
+                    <li class="flex items-center gap-2"><span>✓</span> View Global Security Audit Logs</li>
+                </ul>
+            </div>
+
+            <!-- Owner Role Card -->
+            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="px-3 py-1 rounded-lg bg-emerald-700 text-white font-extrabold text-xs">Document Owner</span>
+                    <span class="text-emerald-400 text-lg">✍️</span>
+                </div>
+                <p class="text-xs theme-text-muted">Owner of specific documents with explicit rights to delegate read or edit permissions.</p>
+                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
+                    <li class="flex items-center gap-2"><span>✓</span> Upload & Download Personal Files</li>
+                    <li class="flex items-center gap-2"><span>✓</span> Delegate Viewer Access Permissions</li>
+                    <li class="flex items-center gap-2 text-red-400"><span>✕</span> No Global Audit Console Access</li>
+                </ul>
+            </div>
+
+            <!-- Viewer Role Card -->
+            <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="px-3 py-1 rounded-lg bg-slate-700 text-white font-extrabold text-xs">Viewer Role</span>
+                    <span class="text-slate-400 text-lg">👁️</span>
+                </div>
+                <p class="text-xs theme-text-muted">Read-only participant granted explicit permission to specific shared vault assets.</p>
+                <ul class="text-xs space-y-2 text-emerald-400 font-medium">
+                    <li class="flex items-center gap-2"><span>✓</span> View & Download Shared Assets</li>
+                    <li class="flex items-center gap-2 text-red-400"><span>🚫</span> Cannot Delete Documents</li>
+                    <li class="flex items-center gap-2 text-red-400"><span>🚫</span> Cannot Delegate Permissions</li>
+                </ul>
+            </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

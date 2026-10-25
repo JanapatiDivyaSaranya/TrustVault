@@ -1,16 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="default">
+<html lang="en" data-theme="emerald">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TrustVault Security Portal{% endblock %}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
         
-        /* 1. Default Theme: Graphite + Off-White + Burnt Orange */
+        /* 1. Emerald Cyber Theme */
+        [data-theme="emerald"] {
+            --bg-main: #031D16;
+            --bg-card: #062B21;
+            --text-main: #E2F1ED;
+            --text-muted: #6B9B8E;
+            --border-color: #0E4839;
+            --accent-primary: #10B981;
+            --accent-hover: #059669;
+            --nav-bg: #021712;
+            --nav-text: #E2F1ED;
+            --nav-border: #0E4839;
+            --input-bg: #04221A;
+            --badge-bg: #F59E0B;
+        }
+
+        /* 2. Graphite & Burnt Orange Theme */
         [data-theme="default"] {
             --bg-main: #1E2229;
             --bg-card: #282C34;
@@ -20,10 +36,13 @@
             --accent-primary: #C85A17;
             --accent-hover: #A0440F;
             --nav-bg: #16191E;
+            --nav-text: #FFFFFF;
+            --nav-border: #2D323C;
             --input-bg: #1E2229;
+            --badge-bg: #C85A17;
         }
 
-        /* 2. Burgundy & Gold Theme */
+        /* 3. Burgundy & Gold Theme */
         [data-theme="burgundy"] {
             --bg-main: #F9F6F0;
             --bg-card: #FFFFFF;
@@ -33,10 +52,13 @@
             --accent-primary: #5B1024;
             --accent-hover: #701A31;
             --nav-bg: #5B1024;
+            --nav-text: #FFFFFF;
+            --nav-border: #3D0A17;
             --input-bg: #F9F6F0;
+            --badge-bg: #D97706;
         }
 
-        /* 3. Clean Light Theme */
+        /* 4. Clean Light Theme */
         [data-theme="light"] {
             --bg-main: #F3F4F6;
             --bg-card: #FFFFFF;
@@ -45,11 +67,14 @@
             --border-color: #E5E7EB;
             --accent-primary: #2563EB;
             --accent-hover: #1D4ED8;
-            --nav-bg: #1F2937;
+            --nav-bg: #FFFFFF;
+            --nav-text: #111827;
+            --nav-border: #E5E7EB;
             --input-bg: #F9FAFB;
+            --badge-bg: #2563EB;
         }
 
-        /* 4. Deep Dark Cyber Theme */
+        /* 5. Deep Dark Cyber Theme */
         [data-theme="dark"] {
             --bg-main: #0F172A;
             --bg-card: #1E293B;
@@ -59,7 +84,10 @@
             --accent-primary: #0EA5E9;
             --accent-hover: #0284C7;
             --nav-bg: #020617;
+            --nav-text: #F8FAFC;
+            --nav-border: #1E293B;
             --input-bg: #0F172A;
+            --badge-bg: #0EA5E9;
         }
 
         .theme-bg-main { background-color: var(--bg-main); }
@@ -68,56 +96,109 @@
         .theme-text-muted { color: var(--text-muted); }
         .theme-border { border-color: var(--border-color); }
         .theme-accent { background-color: var(--accent-primary); }
-        .theme-accent:hover { background-color: var(--accent-hover); }
-        .theme-nav { background-color: var(--nav-bg); }
+        .theme-nav { background-color: var(--nav-bg); color: var(--nav-text); border-color: var(--nav-border); }
         .theme-input { background-color: var(--input-bg); }
     </style>
 </head>
 <body class="theme-bg-main theme-text-main min-h-screen flex flex-col font-sans">
 
-    <!-- Navigation Bar -->
-    <nav class="theme-nav text-white border-b border-black/20 sticky top-0 z-50 shadow-md">
+    <!-- Header Navigation Bar -->
+    <nav class="theme-nav border-b sticky top-0 z-50 shadow-lg transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Brand Logo -->
-                <a href="{{ url_for('dashboard') }}" class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                    <svg class="w-7 h-7 text-[#C85A17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                    </svg>
-                    <span>Trust<span class="text-[#C85A17]">Vault</span></span>
-                </a>
+                
+                <!-- Brand & Logo -->
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2">
+                        <svg class="w-7 h-7" style="color: var(--accent-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span class="text-xl font-extrabold tracking-tight">TRUST<span style="color: var(--accent-primary);">VAULT</span></span>
+                    </a>
+                </div>
 
-                <!-- Controls & Navigation Links -->
-                <div class="flex items-center space-x-4">
-                    <!-- Dynamic Theme Selector -->
-                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-white text-xs px-3 py-1.5 rounded-lg border border-white/20 focus:outline-none">
-                        <option value="default">Graphite & Burnt Orange</option>
-                        <option value="burgundy">Burgundy & Gold</option>
-                        <option value="light">Light Mode</option>
-                        <option value="dark">Dark Cyber</option>
-                    </select>
-
-                    {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('dashboard') }}" class="text-sm hover:opacity-80">Dashboard</a>
-                    <a href="{{ url_for('my_documents') }}" class="text-sm hover:opacity-80">My Documents</a>
-                    <a href="{{ url_for('upload_file') }}" class="text-sm hover:opacity-80">Upload</a>
-                    <a href="{{ url_for('search_documents') }}" class="text-sm hover:opacity-80">Search</a>
+                <!-- Middle Header Links -->
+                {% if current_user.is_authenticated %}
+                <div class="hidden lg:flex items-center space-x-2">
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
+                        <span>🛡️</span> Executive Overview
+                    </a>
+                    <a href="{{ url_for('my_documents') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
+                        <span>📁</span> Secure Matrix
+                    </a>
+                    <a href="{{ url_for('upload_file') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
+                        <span>🔒</span> Encrypted Upload
+                    </a>
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('audit_logs') }}" class="text-sm font-semibold text-[#C85A17]">Audit Logs</a>
-                    {% endif %}
-                    <a href="{{ url_for('logout') }}" class="bg-red-900/60 hover:bg-red-800 text-white text-xs px-3 py-1.5 rounded">Logout</a>
+                    <a href="{{ url_for('audit_logs') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold transition flex items-center gap-1.5" style="color: var(--accent-primary);">
+                        <span>&gt;_</span> Audit Console
+                    </a>
                     {% endif %}
                 </div>
+                {% endif %}
+
+                <!-- Controls: Alerts Bell, Active Role, Theme Switcher -->
+                <div class="flex items-center space-x-3">
+                    
+                    <!-- Security Alerts Bell -->
+                    <div class="relative">
+                        <button onclick="toggleAlertsDropdown()" class="p-2 rounded-lg bg-black/20 border theme-border text-amber-400 relative hover:bg-black/40 transition">
+                            🔔
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-black font-extrabold text-[9px] rounded-full flex items-center justify-center">3</span>
+                        </button>
+                        
+                        <!-- Security Alerts Dropdown -->
+                        <div id="alertsDropdown" class="hidden absolute right-0 mt-2 w-72 theme-bg-card border theme-border rounded-xl shadow-2xl p-3 z-50 text-xs space-y-2">
+                            <div class="flex justify-between items-center pb-2 border-b theme-border font-bold text-amber-400">
+                                <span>⚡ Security Alerts</span>
+                                <span class="text-[10px] theme-text-muted cursor-pointer hover:underline" onclick="toggleAlertsDropdown()">Clear all</span>
+                            </div>
+                            <div class="p-2 rounded bg-black/20 border theme-border">
+                                <p class="font-bold text-emerald-400">New User Registered</p>
+                                <p class="theme-text-muted text-[10px] mt-0.5">alex_hr joined tenant workspace #3</p>
+                            </div>
+                            <div class="p-2 rounded bg-black/20 border theme-border">
+                                <p class="font-bold text-emerald-400">File Encrypted Successfully</p>
+                                <p class="theme-text-muted text-[10px] mt-0.5">Financial_Audit_Q4.pdf stored in /tmp</p>
+                            </div>
+                            <div class="p-2 rounded bg-black/20 border theme-border">
+                                <p class="font-bold text-amber-400">RBAC Restriction</p>
+                                <p class="theme-text-muted text-[10px] mt-0.5">Unauthorized delete attempt blocked</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Role Selector -->
+                    {% if current_user.is_authenticated %}
+                    <div class="flex items-center bg-black/30 p-1 rounded-xl border theme-border text-xs">
+                        <span class="text-[10px] font-extrabold uppercase px-2" style="color: var(--accent-primary);">ROLE:</span>
+                        <span class="px-2.5 py-1 rounded-lg text-black font-bold text-xs shadow-sm" style="background-color: var(--badge-bg);">{{ current_user.role|capitalize }}</span>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="bg-red-800/70 hover:bg-red-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-500/30 transition">Logout</a>
+                    {% endif %}
+
+                    <!-- Theme Switcher Dropdown -->
+                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-xs px-2.5 py-1.5 rounded-lg border theme-border focus:outline-none" style="color: var(--nav-text);">
+                        <option value="system" class="text-black">💻 System Default</option>
+                        <option value="emerald" class="text-black">Emerald Governance</option>
+                        <option value="default" class="text-black">Graphite & Orange</option>
+                        <option value="burgundy" class="text-black">Burgundy & Gold</option>
+                        <option value="light" class="text-black">Clean Light Mode</option>
+                        <option value="dark" class="text-black">Deep Dark Cyber</option>
+                    </select>
+
+                </div>
+
             </div>
         </div>
     </nav>
 
-    <!-- Flash Messages Container -->
+    <!-- Flash Messages -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="p-4 rounded-lg text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-900/30 border-red-500 text-red-200{% else %}bg-emerald-900/30 border-emerald-500 text-emerald-200{% endif %} shadow-sm">
+                    <div class="p-4 rounded-xl text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-900/30 border-red-500/50 text-red-200{% else %}bg-emerald-900/30 border-emerald-500/50 text-emerald-200{% endif %} shadow-md">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -125,25 +206,45 @@
         {% endwith %}
     </div>
 
-    <!-- Main Content Area -->
+    <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Cleaned Footer -->
-    <footer class="theme-nav border-t border-black/20 py-4 text-center text-xs theme-text-muted">
+    <!-- Footer -->
+    <footer class="theme-nav border-t py-4 text-center text-xs theme-text-muted transition-colors duration-300">
         TrustVault Platform &copy; 2026 | Enterprise Security & Governance
     </footer>
 
     <script>
-        function changeTheme(themeName) {
-            document.documentElement.setAttribute('data-theme', themeName);
-            localStorage.setItem('trustvault_theme', themeName);
-            document.getElementById('themeSelector').value = themeName;
+        function applySystemTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const targetTheme = prefersDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', targetTheme);
         }
 
-        // Apply saved theme state on initial page load
-        const savedTheme = localStorage.getItem('trustvault_theme') || 'default';
+        function changeTheme(themeName) {
+            localStorage.setItem('trustvault_theme', themeName);
+            document.getElementById('themeSelector').value = themeName;
+
+            if (themeName === 'system') {
+                applySystemTheme();
+            } else {
+                document.documentElement.setAttribute('data-theme', themeName);
+            }
+        }
+
+        function toggleAlertsDropdown() {
+            document.getElementById('alertsDropdown').classList.toggle('hidden');
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (localStorage.getItem('trustvault_theme') === 'system') {
+                applySystemTheme();
+            }
+        });
+
+        const savedTheme = localStorage.getItem('trustvault_theme') || 'emerald';
         changeTheme(savedTheme);
     </script>
 </body>
