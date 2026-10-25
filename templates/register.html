@@ -10,20 +10,23 @@
     </div>
 
     <form action="{{ url_for('register') }}" method="POST" class="space-y-4">
+        <!-- Username Input -->
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider theme-text-muted mb-1">Username</label>
             <input type="text" id="regUsername" name="username" required placeholder="Choose unique username" class="w-full px-4 py-2.5 theme-input border theme-border rounded-xl theme-text-main focus:outline-none text-sm">
         </div>
 
+        <!-- Email Input -->
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider theme-text-muted mb-1">Email Address</label>
             <input type="email" name="email" required placeholder="name@company.com" class="w-full px-4 py-2.5 theme-input border theme-border rounded-xl theme-text-main focus:outline-none text-sm">
         </div>
 
+        <!-- Password Input with Live Event Listener -->
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider theme-text-muted mb-1">Password</label>
             <div class="relative">
-                <input type="password" id="regPwd" name="password" required placeholder="Enter strong password" oninput="checkPasswordRequirements(this.value)" class="w-full px-4 py-2.5 theme-input border theme-border rounded-xl theme-text-main focus:outline-none text-sm pr-10">
+                <input type="password" id="regPwd" name="password" required placeholder="Enter strong password" onkeyup="checkPasswordRequirements(this.value)" oninput="checkPasswordRequirements(this.value)" class="w-full px-4 py-2.5 theme-input border theme-border rounded-xl theme-text-main focus:outline-none text-sm pr-10">
                 <button type="button" onclick="togglePassword('regPwd', 'regEyeIcon')" class="absolute inset-y-0 right-0 pr-3 flex items-center theme-text-muted hover:theme-text-main">
                     <svg id="regEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -32,37 +35,38 @@
                 </button>
             </div>
 
-            <!-- Password Checkbox Checklist with Auto-Ticks -->
+            <!-- Live Password Checklist -->
             <div class="mt-3 p-3 rounded-xl bg-black/20 border theme-border text-[11px] theme-text-muted space-y-2">
-                <p class="font-semibold theme-text-main">Password Rules Checklist:</p>
+                <p class="font-semibold theme-text-main">Password Requirements Checklist:</p>
                 
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="chk-len" disabled class="rounded theme-border text-emerald-500 focus:ring-0">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-len" onclick="return false;" class="rounded theme-border text-emerald-500 focus:ring-0">
                     <span id="rule-len" class="text-red-400">Minimum <strong>8 characters</strong> long</span>
-                </label>
+                </div>
                 
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="chk-upper" disabled class="rounded theme-border text-emerald-500 focus:ring-0">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-upper" onclick="return false;" class="rounded theme-border text-emerald-500 focus:ring-0">
                     <span id="rule-upper" class="text-red-400">At least 1 <strong>uppercase letter</strong> (A-Z)</span>
-                </label>
+                </div>
 
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="chk-lower" disabled class="rounded theme-border text-emerald-500 focus:ring-0">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-lower" onclick="return false;" class="rounded theme-border text-emerald-500 focus:ring-0">
                     <span id="rule-lower" class="text-red-400">At least 1 <strong>lowercase letter</strong> (a-z)</span>
-                </label>
+                </div>
 
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="chk-num" disabled class="rounded theme-border text-emerald-500 focus:ring-0">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-num" onclick="return false;" class="rounded theme-border text-emerald-500 focus:ring-0">
                     <span id="rule-num" class="text-red-400">At least 1 <strong>numeric digit</strong> (0-9)</span>
-                </label>
+                </div>
 
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="chk-special" disabled class="rounded theme-border text-emerald-500 focus:ring-0">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-special" onclick="return false;" class="rounded theme-border text-emerald-500 focus:ring-0">
                     <span id="rule-special" class="text-red-400">At least 1 <strong>special character</strong> (!@#$%^&*)</span>
-                </label>
+                </div>
             </div>
         </div>
 
+        <!-- Terms Checkbox -->
         <div class="pt-2">
             <div class="flex items-start gap-2">
                 <input type="checkbox" id="terms" name="terms" required class="mt-1 rounded theme-border text-[#C85A17]">
@@ -82,6 +86,7 @@
     </div>
 </div>
 
+<!-- Modal -->
 <div id="termsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="theme-bg-card max-w-lg w-full p-6 rounded-2xl border theme-border shadow-2xl space-y-4">
         <h3 class="text-lg font-bold theme-text-main">TrustVault Terms & Conditions</h3>
@@ -116,11 +121,13 @@ function toggleTermsModal() {
 function updateCheckRule(ruleId, chkId, isMet) {
     const ruleEl = document.getElementById(ruleId);
     const chkEl = document.getElementById(chkId);
-    chkEl.checked = isMet;
-    if (isMet) {
-        ruleEl.className = "text-emerald-400 font-medium transition-colors";
-    } else {
-        ruleEl.className = "text-red-400 transition-colors";
+    if (chkEl && ruleEl) {
+        chkEl.checked = isMet;
+        if (isMet) {
+            ruleEl.className = "text-emerald-400 font-medium transition-colors";
+        } else {
+            ruleEl.className = "text-red-400 transition-colors";
+        }
     }
 }
 
