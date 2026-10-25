@@ -7,38 +7,38 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-black border-b border-cyan-500/30 sticky top-0 z-50 shadow-lg shadow-cyan-950/20">
+    <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Brand Logo -->
                 <div class="flex items-center space-x-3">
-                    <a href="{{ url_for('dashboard') }}" class="text-2xl font-black tracking-wider text-cyan-400 hover:text-cyan-300 transition flex items-center gap-2">
-                        <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    <a href="{{ url_for('dashboard') }}" class="text-2xl font-bold tracking-tight text-blue-400 hover:text-blue-300 transition flex items-center gap-2">
+                        <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                         </svg>
-                        <span>TRUST<span class="text-zinc-100">VAULT</span></span>
+                        <span>Trust<span class="text-white">Vault</span></span>
                     </a>
                 </div>
 
                 <!-- Nav Links -->
                 {% if current_user.is_authenticated %}
                 <div class="flex items-center space-x-6">
-                    <a href="{{ url_for('dashboard') }}" class="text-sm font-medium hover:text-cyan-400 transition">Dashboard</a>
-                    <a href="{{ url_for('my_documents') }}" class="text-sm font-medium hover:text-cyan-400 transition">My Documents</a>
-                    <a href="{{ url_for('upload_file') }}" class="text-sm font-medium hover:text-cyan-400 transition">Upload Document</a>
-                    <a href="{{ url_for('search_documents') }}" class="text-sm font-medium hover:text-cyan-400 transition">Search</a>
+                    <a href="{{ url_for('dashboard') }}" class="text-sm font-medium text-slate-300 hover:text-blue-400 transition">Dashboard</a>
+                    <a href="{{ url_for('my_documents') }}" class="text-sm font-medium text-slate-300 hover:text-blue-400 transition">My Documents</a>
+                    <a href="{{ url_for('upload_file') }}" class="text-sm font-medium text-slate-300 hover:text-blue-400 transition">Upload Document</a>
+                    <a href="{{ url_for('search_documents') }}" class="text-sm font-medium text-slate-300 hover:text-blue-400 transition">Search</a>
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('audit_logs') }}" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition">Audit Logs</a>
+                    <a href="{{ url_for('audit_logs') }}" class="text-sm font-semibold text-blue-400 hover:text-blue-300 transition">Audit Logs</a>
                     {% endif %}
                     
-                    <span class="text-xs text-zinc-400 border-l border-zinc-800 pl-4">
-                        User: <strong class="text-cyan-400">{{ current_user.username }}</strong> 
-                        <span class="text-zinc-500">({{ current_user.role|capitalize }})</span>
+                    <span class="text-xs text-slate-400 border-l border-slate-800 pl-4">
+                        User: <strong class="text-slate-200">{{ current_user.username }}</strong> 
+                        <span class="text-slate-500">({{ current_user.role|capitalize }})</span>
                     </span>
-                    <a href="{{ url_for('logout') }}" class="bg-red-600/80 hover:bg-red-600 text-white text-xs font-bold px-3.5 py-1.5 rounded transition shadow-sm">Logout</a>
+                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Logout</a>
                 </div>
                 {% endif %}
             </div>
@@ -50,7 +50,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="p-4 rounded-lg text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-950/80 border-red-800 text-red-200{% else %}bg-cyan-950/80 border-cyan-800 text-cyan-200{% endif %}">
+                    <div class="p-4 rounded-lg text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-950/80 border-red-800 text-red-200{% else %}bg-blue-950/80 border-blue-800 text-blue-200{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -64,8 +64,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-black border-t border-zinc-900 py-4 text-center text-xs text-zinc-600">
-        TrustVault Platform &copy; 2026 | Snovasys Fresher Hiring Challenge
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        TrustVault Governance Platform &copy; 2026 | Snovasys Fresher Hiring Challenge
     </footer>
 
 </body>
