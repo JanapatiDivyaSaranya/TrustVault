@@ -10,15 +10,15 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'trustvault-secret-key-2026')
 
-# Max upload size: 16 MB
+# Maximum file upload size: 16 MB
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-# Allowed file extensions for strict upload validation
+# Strict file extension whitelist for upload validation
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'xlsx'}
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# Configure writable directory paths for Render deployment
+# Configure dynamic writable storage paths for Render deployment vs local environment
 if os.environ.get('RENDER'):
     db_path = '/tmp/trustvault.db'
     upload_path = '/tmp/uploads'
@@ -43,8 +43,8 @@ def allowed_file(filename):
 
 def validate_password_strength(password):
     """
-    Enforces password security:
-    - At least 8 characters
+    Enforces password complexity requirements:
+    - Minimum 8 characters
     - At least 1 uppercase letter
     - At least 1 lowercase letter
     - At least 1 digit
@@ -116,14 +116,14 @@ def log_action(username, action, user_id=None):
     db.session.add(log)
     db.session.commit()
 
-# Dynamic database creation on first request
+# Initialize tables lazily before request execution under Gunicorn WSGI
 @app.before_request
 def initialize_database():
     if not getattr(app, '_db_initialized', False):
         db.create_all()
         app._db_initialized = True
 
-# --- ROUTES ---
+# --- ROUTE HANDLERS ---
 
 @app.route('/')
 def index():
@@ -141,13 +141,13 @@ def register():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
-        # 1. Enforce password complexity
+        # Password complexity validation
         is_strong, msg = validate_password_strength(password)
         if not is_strong:
             flash(msg, 'error')
             return redirect(url_for('register'))
 
-        # 2. Check existing user
+        # Duplicate account verification
         if User.query.filter((User.username == username) | (User.email == email)).first():
             flash('Username or email address already registered.', 'error')
             return redirect(url_for('register'))
@@ -219,7 +219,6 @@ def upload_file():
             flash('No file selected.', 'error')
             return redirect(request.url)
 
-        # File type restriction check
         if not allowed_file(file.filename):
             flash(f"Invalid file type. Allowed extensions: {', '.join(ALLOWED_EXTENSIONS)}", 'error')
             log_action(username=current_user.username, action=f"Blocked invalid file upload attempt: '{file.filename}'", user_id=current_user.id)
@@ -240,7 +239,7 @@ def upload_file():
         db.session.commit()
 
         log_action(username=current_user.username, action=f"Uploaded secure document '{new_doc.title}'", user_id=current_user.id)
-        flash('Document uploaded successfully!', 'success')
+        flash('Document uploaded successfully to TrustVault!', 'success')
         return redirect(url_for('my_documents'))
 
     return render_template('upload.html')
