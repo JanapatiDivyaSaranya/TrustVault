@@ -3,16 +3,16 @@
 {% block title %}Upload Document - TrustVault{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-xl">
-    <h2 class="text-2xl font-bold text-emerald-400 mb-6">Upload Confidential Document</h2>
+<div class="max-w-2xl mx-auto bg-slate-900 p-8 rounded-xl border border-slate-800 shadow-xl">
+    <h2 class="text-2xl font-bold text-blue-400 mb-6">Upload Confidential Document</h2>
     <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Document Title</label>
-            <input type="text" name="title" placeholder="e.g. Q3 Financial Report" required class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none">
+            <label class="block text-sm font-medium text-slate-300 mb-1">Document Title</label>
+            <input type="text" name="title" placeholder="e.g. Q3 Financial Report" required class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-white focus:border-blue-500 focus:outline-none">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Category</label>
-            <select name="category" class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:border-emerald-500 focus:outline-none">
+            <label class="block text-sm font-medium text-slate-300 mb-1">Category</label>
+            <select name="category" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-white focus:border-blue-500 focus:outline-none">
                 <option value="General">General</option>
                 <option value="Financial">Financial</option>
                 <option value="Legal">Legal</option>
@@ -21,10 +21,10 @@
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-300 mb-1">Select File</label>
-            <input type="file" name="file" required class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none">
+            <label class="block text-sm font-medium text-slate-300 mb-1">Select File</label>
+            <input type="file" name="file" required class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-300 focus:outline-none">
         </div>
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg transition">Upload to TrustVault</button>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition">Upload to TrustVault</button>
     </form>
 </div>
 {% endblock %}

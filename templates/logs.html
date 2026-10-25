@@ -4,23 +4,23 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
-        <h2 class="text-2xl font-bold text-emerald-400 mb-4">System Audit Logs (Admin Only)</h2>
+    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl">
+        <h2 class="text-2xl font-bold text-blue-400 mb-4">System Audit Logs (Admin Only)</h2>
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-gray-300">
-                <thead class="bg-gray-900 text-emerald-400 uppercase text-xs">
+            <table class="w-full text-left text-sm text-slate-300">
+                <thead class="bg-slate-950 text-blue-400 uppercase text-xs">
                     <tr>
                         <th class="py-3 px-4">Timestamp</th>
                         <th class="py-3 px-4">Username</th>
                         <th class="py-3 px-4">Action Performed</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-700">
+                <tbody class="divide-y divide-slate-800">
                     {% for log in logs %}
-                    <tr class="hover:bg-gray-700/50 transition">
-                        <td class="py-3 px-4 font-mono text-xs text-gray-400">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="py-3 px-4 font-mono text-xs text-slate-400">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td class="py-3 px-4 font-semibold text-white">{{ log.username }}</td>
-                        <td class="py-3 px-4 text-gray-200">{{ log.action }}</td>
+                        <td class="py-3 px-4 text-slate-200">{{ log.action }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
