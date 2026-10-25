@@ -4,23 +4,25 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl">
-        <h2 class="text-2xl font-bold text-blue-400 mb-4">System Audit Logs (Admin Only)</h2>
+    <div class="bg-white p-6 rounded-2xl border border-[#E5DED4] shadow-sm">
+        <h2 class="text-2xl font-bold text-[#5B1024] mb-2">System Audit Logs (Admin Only)</h2>
+        <p class="text-xs text-[#7A686B] mb-6">Real-time security event tracking and IP address logging across all active tenants.</p>
+
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-300">
-                <thead class="bg-slate-950 text-blue-400 uppercase text-xs">
+            <table class="w-full text-left text-sm text-[#2B181C]">
+                <thead class="bg-[#F9F6F0] text-[#5B1024] uppercase text-xs font-semibold">
                     <tr>
-                        <th class="py-3 px-4">Timestamp</th>
+                        <th class="py-3 px-4 rounded-l-lg">Timestamp</th>
                         <th class="py-3 px-4">Username</th>
-                        <th class="py-3 px-4">Action Performed</th>
+                        <th class="py-3 px-4 rounded-r-lg">Action & Details</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800">
+                <tbody class="divide-y divide-[#E5DED4]">
                     {% for log in logs %}
-                    <tr class="hover:bg-slate-800/50 transition">
-                        <td class="py-3 px-4 font-mono text-xs text-slate-400">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td class="py-3 px-4 font-semibold text-white">{{ log.username }}</td>
-                        <td class="py-3 px-4 text-slate-200">{{ log.action }}</td>
+                    <tr class="hover:bg-[#F9F6F0]/60 transition">
+                        <td class="py-3 px-4 font-mono text-xs text-[#7A686B]">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td class="py-3 px-4 font-semibold text-[#5B1024]">{{ log.username }}</td>
+                        <td class="py-3 px-4 text-[#2B181C]">{{ log.action }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
