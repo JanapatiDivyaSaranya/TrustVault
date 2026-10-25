@@ -1,7 +1,26 @@
-.venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-.pyc
-.db
+*.py[cod]
+*$py.class
+
+# Local environments & virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Database files & uploads (prevents pushing personal/test databases)
+*.db
+*.sqlite3
 instance/
-uploads/
+uploads/*
+!uploads/.gitkeep
+
+# Operating system / IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment secrets
 .env

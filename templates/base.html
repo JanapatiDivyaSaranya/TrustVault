@@ -1,60 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="default">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TrustVault Security Portal{% endblock %}</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* 1. Default Theme: Graphite + Off-White + Burnt Orange */
+        [data-theme="default"] {
+            --bg-main: #1E2229;
+            --bg-card: #282C34;
+            --text-main: #F4F5F7;
+            --text-muted: #A0A8B6;
+            --border-color: #3B404A;
+            --accent-primary: #C85A17;
+            --accent-hover: #A0440F;
+            --nav-bg: #16191E;
+            --input-bg: #1E2229;
+        }
+
+        /* 2. Burgundy & Gold / Amber Theme */
+        [data-theme="burgundy"] {
+            --bg-main: #F9F6F0;
+            --bg-card: #FFFFFF;
+            --text-main: #2B181C;
+            --text-muted: #7A686B;
+            --border-color: #E5DED4;
+            --accent-primary: #5B1024;
+            --accent-hover: #701A31;
+            --nav-bg: #5B1024;
+            --input-bg: #F9F6F0;
+        }
+
+        /* 3. Clean Light Theme */
+        [data-theme="light"] {
+            --bg-main: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --accent-primary: #2563EB;
+            --accent-hover: #1D4ED8;
+            --nav-bg: #1F2937;
+            --input-bg: #F9FAFB;
+        }
+
+        /* 4. Deep Dark Theme */
+        [data-theme="dark"] {
+            --bg-main: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+            --accent-primary: #0EA5E9;
+            --accent-hover: #0284C7;
+            --nav-bg: #020617;
+            --input-bg: #0F172A;
+        }
+
+        .theme-bg-main { background-color: var(--bg-main); }
+        .theme-bg-card { background-color: var(--bg-card); }
+        .theme-text-main { color: var(--text-main); }
+        .theme-text-muted { color: var(--text-muted); }
+        .theme-border { border-color: var(--border-color); }
+        .theme-accent { background-color: var(--accent-primary); }
+        .theme-accent:hover { background-color: var(--accent-hover); }
+        .theme-nav { background-color: var(--nav-bg); }
+        .theme-input { background-color: var(--input-bg); }
     </style>
 </head>
-<body class="bg-[#F9F6F0] text-[#2B181C] min-h-screen flex flex-col font-sans">
+<body class="theme-bg-main theme-text-main min-h-screen flex flex-col font-sans">
 
-    <!-- Navbar -->
-    <nav class="bg-[#5B1024] text-white border-b border-[#3D0A17] sticky top-0 z-50 shadow-md">
+    <!-- Navigation Bar -->
+    <nav class="theme-nav text-white border-b border-black/20 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Brand Logo -->
-                <div class="flex items-center space-x-3">
-                    <a href="{{ url_for('dashboard') }}" class="text-2xl font-bold tracking-tight text-white hover:text-[#E8C2CA] transition flex items-center gap-2">
-                        <svg class="w-7 h-7 text-[#C48B9F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
-                        <span>Trust<span class="text-[#C48B9F]">Vault</span></span>
-                    </a>
-                </div>
+                <a href="{{ url_for('dashboard') }}" class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <svg class="w-7 h-7 text-[#C85A17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>Trust<span class="text-[#C85A17]">Vault</span></span>
+                </a>
 
-                <!-- Nav Links -->
-                {% if current_user.is_authenticated %}
-                <div class="flex items-center space-x-6">
-                    <a href="{{ url_for('dashboard') }}" class="text-sm font-medium hover:text-[#C48B9F] transition">Dashboard</a>
-                    <a href="{{ url_for('my_documents') }}" class="text-sm font-medium hover:text-[#C48B9F] transition">My Documents</a>
-                    <a href="{{ url_for('upload_file') }}" class="text-sm font-medium hover:text-[#C48B9F] transition">Upload Document</a>
-                    <a href="{{ url_for('search_documents') }}" class="text-sm font-medium hover:text-[#C48B9F] transition">Search</a>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Selector Dropdown -->
+                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-white text-xs px-3 py-1.5 rounded-lg border border-white/20 focus:outline-none">
+                        <option value="default">Graphite & Burnt Orange</option>
+                        <option value="burgundy">Burgundy & Gold</option>
+                        <option value="light">Light Mode</option>
+                        <option value="dark">Dark Cyber</option>
+                    </select>
+
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="text-sm hover:opacity-80">Dashboard</a>
+                    <a href="{{ url_for('my_documents') }}" class="text-sm hover:opacity-80">My Documents</a>
+                    <a href="{{ url_for('upload_file') }}" class="text-sm hover:opacity-80">Upload</a>
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('audit_logs') }}" class="text-sm font-semibold text-[#C48B9F] hover:text-white transition">Audit Logs</a>
+                    <a href="{{ url_for('audit_logs') }}" class="text-sm font-semibold text-[#C85A17]">Audit Logs</a>
                     {% endif %}
-                    
-                    <span class="text-xs text-[#E8C2CA] border-l border-[#701A31] pl-4">
-                        User: <strong class="text-white">{{ current_user.username }}</strong> 
-                        <span class="text-[#C48B9F]">({{ current_user.role|capitalize }})</span>
-                    </span>
-                    <a href="{{ url_for('logout') }}" class="bg-[#701A31] hover:bg-[#83223A] text-white text-xs font-semibold px-3 py-1.5 rounded transition">Logout</a>
+                    <a href="{{ url_for('logout') }}" class="bg-red-900/60 hover:bg-red-800 text-white text-xs px-3 py-1.5 rounded">Logout</a>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- Flash Messages Container -->
+    <!-- Flash Messages -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="p-4 rounded-lg text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-emerald-50 border-emerald-200 text-emerald-800{% endif %} shadow-sm">
+                    <div class="p-4 rounded-lg text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-900/30 border-red-500 text-red-200{% else %}bg-emerald-900/30 border-emerald-500 text-emerald-200{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -62,15 +121,25 @@
         {% endwith %}
     </div>
 
-    <!-- Main Content Body -->
+    <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#5B1024] border-t border-[#3D0A17] py-4 text-center text-xs text-[#C48B9F]">
-        TrustVault Governance Platform &copy; 2026 | Snovasys Fresher Hiring Challenge
+    <footer class="theme-nav border-t border-black/20 py-4 text-center text-xs theme-text-muted">
+        TrustVault Platform &copy; 2026 | Snovasys Fresher Hiring Challenge
     </footer>
 
+    <script>
+        function changeTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('trustvault_theme', themeName);
+            document.getElementById('themeSelector').value = themeName;
+        }
+
+        // Initialize saved theme on page load
+        const savedTheme = localStorage.getItem('trustvault_theme') || 'default';
+        changeTheme(savedTheme);
+    </script>
 </body>
 </html>

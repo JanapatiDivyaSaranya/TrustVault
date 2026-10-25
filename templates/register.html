@@ -32,7 +32,7 @@
                 </button>
             </div>
 
-            <!-- Detailed Password Instructions Below Input -->
+            <!-- Password Requirements Box -->
             <div class="mt-3 p-3 rounded-xl bg-black/20 border theme-border text-[11px] theme-text-muted space-y-1">
                 <p class="font-semibold theme-text-main">Password Requirements:</p>
                 <ul class="list-disc list-inside space-y-0.5">
@@ -45,6 +45,16 @@
             </div>
         </div>
 
+        <!-- Terms & Conditions Checkbox -->
+        <div class="pt-2">
+            <div class="flex items-start gap-2">
+                <input type="checkbox" id="terms" name="terms" required class="mt-1 rounded theme-border text-[#C85A17] focus:ring-0">
+                <label for="terms" class="text-xs theme-text-muted leading-tight">
+                    I agree to the <button type="button" onclick="toggleTermsModal()" class="text-[#C85A17] font-semibold underline hover:opacity-80">Terms & Conditions</button> and Data Privacy Policy.
+                </label>
+            </div>
+        </div>
+
         <button type="submit" class="w-full theme-accent text-white font-semibold py-3 rounded-xl transition shadow-md text-sm mt-2">
             Register Account
         </button>
@@ -52,6 +62,22 @@
 
     <div class="mt-6 text-center text-xs theme-text-muted">
         Already registered? <a href="{{ url_for('login') }}" class="text-[#C85A17] font-semibold hover:underline">Sign in here</a>
+    </div>
+</div>
+
+<!-- Terms & Conditions Modal -->
+<div id="termsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="theme-bg-card max-w-lg w-full p-6 rounded-2xl border theme-border shadow-2xl space-y-4">
+        <h3 class="text-lg font-bold theme-text-main">TrustVault Terms & Conditions</h3>
+        <div class="max-h-60 overflow-y-auto text-xs theme-text-muted space-y-2 pr-2 border-y theme-border py-3">
+            <p><strong>1. Acceptable Use:</strong> Users are responsible for all documents uploaded to TrustVault. Storing malicious software or illegal content is strictly prohibited.</p>
+            <p><strong>2. Role-Based Access Control:</strong> Access to sensitive documents is enforced according to assigned user roles and explicit permission grants.</p>
+            <p><strong>3. Security & Audit Logging:</strong> System actions (including uploads, downloads, and permission updates) are logged alongside client IP addresses for security compliance.</p>
+            <p><strong>4. File Storage Policy:</strong> Files uploaded to the portal are subject to strict extension whitelisting (.pdf, .docx, .png, .jpg, .xlsx, .csv, .txt).</p>
+        </div>
+        <div class="text-right">
+            <button type="button" onclick="toggleTermsModal()" class="theme-accent text-white px-4 py-2 rounded-xl text-xs font-semibold">I Understand</button>
+        </div>
     </div>
 </div>
 
@@ -66,6 +92,11 @@ function togglePassword(inputId, iconId) {
         input.type = 'password';
         icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
     }
+}
+
+function toggleTermsModal() {
+    const modal = document.getElementById('termsModal');
+    modal.classList.toggle('hidden');
 }
 </script>
 {% endblock %}

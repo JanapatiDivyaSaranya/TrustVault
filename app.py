@@ -140,6 +140,12 @@ def register():
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
+        terms_accepted = request.form.get('terms')
+
+        # Check Terms & Conditions acceptance
+        if not terms_accepted:
+            flash('You must agree to the Terms & Conditions to register.', 'error')
+            return redirect(url_for('register'))
 
         # Password complexity validation
         is_strong, msg = validate_password_strength(password)
@@ -160,7 +166,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        log_action(username=new_user.username, action=f"Account created with role '{role}'", user_id=new_user.id)
+        log_action(username=new_user.username, action=f"Account created (Terms accepted) with role '{role}'", user_id=new_user.id)
         flash('Account created successfully! Please log in.', 'success')
         return redirect(url_for('login'))
 
