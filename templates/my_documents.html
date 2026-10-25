@@ -5,17 +5,18 @@
 {% block content %}
 <div class="space-y-8">
     
-    <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-extrabold theme-text-main flex items-center gap-2">
                 <span>📁</span> SECURE DOCUMENT MATRIX
             </h1>
-            <p class="text-xs theme-text-muted mt-1">Manage personal vault assets and delegated permission access.</p>
+            <p class="text-xs theme-text-muted mt-1">Manage personal vault assets and granular file-level permissions.</p>
         </div>
+        {% if current_user.role != 'viewer' %}
         <a href="{{ url_for('upload_file') }}" class="theme-accent text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-md transition text-center">
             + Upload New Document
         </a>
+        {% endif %}
     </div>
 
     <!-- Personal Documents Section -->
@@ -31,6 +32,7 @@
                     <tr class="border-b theme-border theme-text-muted uppercase tracking-wider text-[10px]">
                         <th class="py-3 px-4">Title</th>
                         <th class="py-3 px-4">Category</th>
+                        <th class="py-3 px-4">Size</th>
                         <th class="py-3 px-4">Uploaded</th>
                         <th class="py-3 px-4 text-right">Actions</th>
                     </tr>
@@ -44,15 +46,20 @@
                                 {{ doc.category }}
                             </span>
                         </td>
+                        <td class="py-3 px-4 theme-text-muted">{{ "%.2f"|format(doc.file_size / 1024) }} KB</td>
                         <td class="py-3 px-4 theme-text-muted">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
                         <td class="py-3 px-4 text-right space-x-2">
-                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/60 hover:bg-emerald-700 text-white font-semibold transition">
+                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/65 hover:bg-emerald-700 text-white font-semibold transition">
                                 Download
                             </a>
-                            <button onclick="toggleShareModal('shareModal-{{ doc.id }}')" class="px-3 py-1.5 rounded-lg bg-black/30 border theme-border hover:bg-black/50 transition">
-                                Share Access
+                            
+                            {% if current_user.role != 'viewer' %}
+                            <button onclick="toggleShareModal('shareModal-{{ doc.id }}')" class="px-3 py-1.5 rounded-lg bg-black/30 border theme-border hover:bg-black/50 transition text-amber-400 font-bold">
+                                Access Matrix
                             </button>
-                            <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" class="inline" onsubmit="return confirm('Permanently delete this vault asset?');">
+                            {% endif %}
+
+                            <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" class="inline" onsubmit="return confirm('Permanently purge this vault asset?');">
                                 <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-800/60 hover:bg-red-800 text-white font-semibold transition">
                                     Delete
                                 </button>
@@ -60,26 +67,41 @@
                         </td>
                     </tr>
 
-                    <!-- Share Modal for Document -->
+                    <!-- Granular File-Level Access Matrix Modal -->
                     <div id="shareModal-{{ doc.id }}" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div class="theme-bg-card max-w-md w-full p-6 rounded-2xl border theme-border shadow-2xl space-y-4">
-                            <h3 class="text-base font-bold theme-text-main">Delegate Permissions for '{{ doc.title }}'</h3>
+                        <div class="theme-bg-card max-w-lg w-full p-6 rounded-2xl border theme-border shadow-2xl space-y-4">
+                            <h3 class="text-base font-bold theme-text-main">Granular Access Control Matrix: '{{ doc.title }}'</h3>
+                            <p class="text-[11px] theme-text-muted">Configure custom read, write, and delete permissions per individual file for tenant users.</p>
+                            
                             <form action="{{ url_for('share_document', doc_id=doc.id) }}" method="POST" class="space-y-4">
                                 <div>
-                                    <label class="block text-xs font-semibold theme-text-muted mb-1">Select Target User</label>
+                                    <label class="block text-xs font-semibold theme-text-muted mb-1">Select Tenant User</label>
                                     <select name="user_id" required class="w-full px-3 py-2 theme-input border theme-border rounded-xl text-xs theme-text-main">
                                         {% for u in all_users %}
-                                        <option value="{{ u.id }}" class="text-black">{{ u.username }} ({{ u.email }})</option>
+                                        <option value="{{ u.id }}" class="text-black">{{ u.username }} (Role: {{ u.role }})</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="checkbox" name="can_edit" id="edit-{{ doc.id }}" class="rounded theme-border text-[#C85A17]">
-                                    <label for="edit-{{ doc.id }}" class="text-xs theme-text-muted">Grant Edit Permissions (Default: Read-Only)</label>
+
+                                <div class="p-3 rounded-xl bg-black/20 border theme-border space-y-2">
+                                    <p class="text-xs font-bold theme-text-main">Permission Matrix Toggles:</p>
+                                    <div class="flex items-center justify-between">
+                                        <label for="read-{{ doc.id }}" class="text-xs theme-text-muted">Can Read / Download</label>
+                                        <input type="checkbox" name="can_read" id="read-{{ doc.id }}" checked class="rounded theme-border text-emerald-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label for="write-{{ doc.id }}" class="text-xs theme-text-muted">Can Edit / Modify Metadata</label>
+                                        <input type="checkbox" name="can_write" id="write-{{ doc.id }}" class="rounded theme-border text-emerald-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label for="delete-{{ doc.id }}" class="text-xs theme-text-muted">Can Delete Asset</label>
+                                        <input type="checkbox" name="can_delete" id="delete-{{ doc.id }}" class="rounded theme-border text-red-500">
+                                    </div>
                                 </div>
+
                                 <div class="flex justify-end gap-2 pt-2">
                                     <button type="button" onclick="toggleShareModal('shareModal-{{ doc.id }}')" class="px-4 py-2 rounded-xl border theme-border text-xs font-semibold theme-text-muted">Cancel</button>
-                                    <button type="submit" class="theme-accent text-white px-4 py-2 rounded-xl text-xs font-semibold">Grant Access</button>
+                                    <button type="submit" class="theme-accent text-white px-4 py-2 rounded-xl text-xs font-semibold">Save Matrix Policy</button>
                                 </div>
                             </form>
                         </div>
@@ -117,7 +139,7 @@
                         <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">{{ doc.category }}</span></td>
                         <td class="py-3 px-4 theme-text-muted">{{ doc.owner.username }}</td>
                         <td class="py-3 px-4 text-right">
-                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/60 hover:bg-emerald-700 text-white font-semibold transition">
+                            <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="px-3 py-1.5 rounded-lg bg-emerald-700/65 hover:bg-emerald-700 text-white font-semibold transition">
                                 Download
                             </a>
                         </td>
@@ -127,7 +149,7 @@
             </table>
         </div>
         {% else %}
-        <p class="text-xs theme-text-muted italic py-4">No documents have been shared with your account yet.</p>
+        <p class="text-xs theme-text-muted italic py-4">No documents have been shared with your account.</p>
         {% endif %}
     </div>
 

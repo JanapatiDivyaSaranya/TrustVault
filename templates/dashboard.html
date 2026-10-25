@@ -15,7 +15,7 @@
                 </div>
                 <h1 class="text-3xl font-extrabold tracking-tight theme-text-main">GOVERNANCE & SECURITY PORTAL</h1>
                 <p class="text-xs theme-text-muted mt-1 max-w-2xl">
-                    Encrypted document management portal enforcing Role-Based Access Control (RBAC) and automated audit log registration.
+                    Encrypted document management portal enforcing Role-Based Access Control (RBAC) and real-time audit event logging.
                 </p>
             </div>
             
@@ -32,13 +32,13 @@
         </div>
     </div>
 
-    <!-- Stat Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Analytics Stat Cards with Storage Quota Progress Indicator -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex justify-between items-center">
             <div>
                 <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">TOTAL ENCRYPTED VAULTS</p>
                 <p class="text-4xl font-extrabold theme-text-main mt-2">{{ total_docs }}</p>
-                <p class="text-xs text-emerald-400 mt-2">↗ +{{ total_docs }} active assets registered</p>
+                <p class="text-xs text-emerald-400 mt-2">Active assets securely registered</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
                 🔒
@@ -47,17 +47,31 @@
 
         <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex justify-between items-center">
             <div>
-                <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">ACTIVE TENANTS / USERS</p>
+                <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">ACTIVE TENANTS</p>
                 <p class="text-4xl font-extrabold theme-text-main mt-2">{{ total_users }}</p>
-                <p class="text-xs theme-text-muted mt-2">RBAC Scoped Access Control</p>
+                <p class="text-xs theme-text-muted mt-2">Scoped RBAC Workspace</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
                 👥
             </div>
         </div>
+
+        <!-- Storage Quota Progress Indicator Card -->
+        <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <p class="text-xs font-extrabold uppercase tracking-wider theme-text-muted">STORAGE QUOTA</p>
+                    <span class="text-xs font-bold text-amber-400">{{ storage_percentage }}%</span>
+                </div>
+                <p class="text-2xl font-extrabold theme-text-main">{{ storage_used_mb }} MB <span class="text-xs theme-text-muted font-normal">/ 100 MB</span></p>
+            </div>
+            <div class="w-full bg-black/40 rounded-full h-2.5 mt-4 overflow-hidden border theme-border">
+                <div class="bg-gradient-to-r from-emerald-500 to-amber-500 h-2.5 rounded-full transition-all duration-500" style="width: {{ storage_percentage }}%"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Role-Based Access Control (RBAC) Governance Matrix -->
+    <!-- RBAC Governance Matrix -->
     <div class="theme-bg-card p-6 rounded-2xl border theme-border shadow-md">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -66,11 +80,9 @@
                 </h3>
                 <p class="text-xs theme-text-muted mt-0.5">Access control rules enforced automatically across all database models and endpoint controllers.</p>
             </div>
-            <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">Simulation Mode: {{ current_user.role|upper }}</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Admin Role Card -->
             <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
                 <div class="flex justify-between items-center">
                     <span class="px-3 py-1 rounded-lg bg-amber-500 text-black font-extrabold text-xs">Admin Role</span>
@@ -78,27 +90,25 @@
                 </div>
                 <p class="text-xs theme-text-muted">Full tenant governance authority across all user uploaded documents and system audit logs.</p>
                 <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li class="flex items-center gap-2"><span>✓</span> Read / Download / Delete Any Asset</li>
-                    <li class="flex items-center gap-2"><span>✓</span> Manage Permission Sharing</li>
-                    <li class="flex items-center gap-2"><span>✓</span> View Global Security Audit Logs</li>
+                    <li>✓ Read / Download / Delete Any Asset</li>
+                    <li>✓ Manage Granular File Matrices</li>
+                    <li>✓ View Real-Time Audit Telemetry</li>
                 </ul>
             </div>
 
-            <!-- Standard User Role Card -->
             <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
                 <div class="flex justify-between items-center">
                     <span class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs">Standard User</span>
                     <span class="text-emerald-400 text-lg">👤</span>
                 </div>
-                <p class="text-xs theme-text-muted">Owner of specific documents with explicit rights to delegate read or edit permissions.</p>
+                <p class="text-xs theme-text-muted">Owner of specific documents with explicit rights to delegate file-level access permissions.</p>
                 <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li class="flex items-center gap-2"><span>✓</span> Upload & Download Personal Files</li>
-                    <li class="flex items-center gap-2"><span>✓</span> Delegate Viewer Access Permissions</li>
-                    <li class="flex items-center gap-2 text-red-400"><span>✕</span> No Global Audit Console Access</li>
+                    <li>✓ Upload & Download Personal Files</li>
+                    <li>✓ Configure File-Level Matrices</li>
+                    <li class="text-red-400">✕ No Global Audit Console Access</li>
                 </ul>
             </div>
 
-            <!-- Viewer Role Card -->
             <div class="p-5 rounded-xl bg-black/20 border theme-border space-y-3">
                 <div class="flex justify-between items-center">
                     <span class="px-3 py-1 rounded-lg bg-sky-700 text-white font-extrabold text-xs">Viewer Role</span>
@@ -106,9 +116,9 @@
                 </div>
                 <p class="text-xs theme-text-muted">Read-only participant granted explicit permission to specific shared vault assets.</p>
                 <ul class="text-xs space-y-2 text-emerald-400 font-medium">
-                    <li class="flex items-center gap-2"><span>✓</span> View & Download Shared Assets</li>
-                    <li class="flex items-center gap-2 text-red-400"><span>🚫</span> Cannot Delete Documents</li>
-                    <li class="flex items-center gap-2 text-red-400"><span>🚫</span> Cannot Delegate Permissions</li>
+                    <li>✓ View & Download Shared Assets</li>
+                    <li class="text-red-400">🚫 Cannot Delete Documents</li>
+                    <li class="text-red-400">🚫 Unscoped Panels Hidden</li>
                 </ul>
             </div>
         </div>
