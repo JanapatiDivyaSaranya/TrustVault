@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}TrustVault Security Portal{% endblock %}</title>
+    <title>{% block title %}TrustVault Security Governance{% endblock %}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
         
-        /* 1. Emerald Cyber Theme */
+        /* 1. Emerald Cyber Governance Theme */
         [data-theme="emerald"] {
             --bg-main: #031D16;
             --bg-card: #062B21;
@@ -26,7 +26,7 @@
             --badge-bg: #F59E0B;
         }
 
-        /* 2. Graphite & Burnt Orange Theme */
+        /* 2. Default Graphite Theme */
         [data-theme="default"] {
             --bg-main: #1E2229;
             --bg-card: #282C34;
@@ -102,52 +102,45 @@
 </head>
 <body class="theme-bg-main theme-text-main min-h-screen flex flex-col font-sans">
 
-    <!-- Header Navigation Bar -->
-    <nav class="theme-nav border-b sticky top-0 z-50 shadow-lg transition-colors duration-300">
+    <!-- Top Navigation Header -->
+    <nav class="theme-nav border-b sticky top-0 z-50 shadow-xl transition-colors duration-300 py-2">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 
                 <!-- Brand & Logo -->
                 <div class="flex items-center space-x-3">
                     <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2">
-                        <svg class="w-7 h-7" style="color: var(--accent-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
-                        <span class="text-xl font-extrabold tracking-tight">TRUST<span style="color: var(--accent-primary);">VAULT</span></span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-black text-sm shadow-md">TV</div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xl font-black tracking-tight">TRUST<span class="text-emerald-400">VAULT</span></span>
+                                <span class="text-[9px] bg-emerald-900/80 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/40 uppercase">EMERALD EDITION</span>
+                            </div>
+                            <p class="text-[10px] theme-text-muted hidden sm:block">Zero-Trust Enterprise Multi-Tenant Security Governance</p>
+                        </div>
                     </a>
                 </div>
 
-                <!-- Middle Header Links -->
-                {% if current_user.is_authenticated %}
-                <div class="hidden lg:flex items-center space-x-2">
-                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
-                        <span>🛡️</span> Executive Overview
-                    </a>
-                    <a href="{{ url_for('my_documents') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
-                        <span>📁</span> Secure Matrix
-                    </a>
-                    <a href="{{ url_for('upload_file') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:opacity-80 transition flex items-center gap-1.5">
-                        <span>🔒</span> Encrypted Upload
-                    </a>
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-3">
+                    {% if current_user.is_authenticated %}
+                    
+                    <!-- Audit Console Button -->
                     {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('audit_logs') }}" class="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold transition flex items-center gap-1.5" style="color: var(--accent-primary);">
-                        <span>&gt;_</span> Audit Console
+                    <a href="{{ url_for('audit_logs') }}" class="px-3.5 py-2 rounded-2xl bg-black/30 border theme-border text-emerald-400 text-xs font-bold hover:bg-black/50 transition flex items-center gap-1.5">
+                        <span>&gt;_</span>
+                        <span>Audit Console</span>
                     </a>
                     {% endif %}
-                </div>
-                {% endif %}
 
-                <!-- Controls: Alerts Bell, Active Role, Theme Switcher -->
-                <div class="flex items-center space-x-3">
-                    
-                    <!-- Security Alerts Bell -->
+                    <!-- Security Alert Bell -->
                     <div class="relative">
-                        <button onclick="toggleAlertsDropdown()" class="p-2 rounded-lg bg-black/20 border theme-border text-amber-400 relative hover:bg-black/40 transition">
+                        <button onclick="toggleAlertsDropdown()" class="p-2.5 rounded-2xl bg-black/30 border theme-border text-amber-400 relative hover:bg-black/50 transition">
                             🔔
-                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-black font-extrabold text-[9px] rounded-full flex items-center justify-center">3</span>
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-black font-extrabold text-[9px] rounded-full flex items-center justify-center shadow-sm">3</span>
                         </button>
                         
-                        <!-- Security Alerts Dropdown -->
+                        <!-- Alerts Dropdown -->
                         <div id="alertsDropdown" class="hidden absolute right-0 mt-2 w-72 theme-bg-card border theme-border rounded-xl shadow-2xl p-3 z-50 text-xs space-y-2">
                             <div class="flex justify-between items-center pb-2 border-b theme-border font-bold text-amber-400">
                                 <span>⚡ Security Alerts</span>
@@ -168,17 +161,32 @@
                         </div>
                     </div>
 
-                    <!-- Active Role Selector -->
-                    {% if current_user.is_authenticated %}
-                    <div class="flex items-center bg-black/30 p-1 rounded-xl border theme-border text-xs">
-                        <span class="text-[10px] font-extrabold uppercase px-2" style="color: var(--accent-primary);">ROLE:</span>
-                        <span class="px-2.5 py-1 rounded-lg text-black font-bold text-xs shadow-sm" style="background-color: var(--badge-bg);">{{ current_user.role|capitalize }}</span>
+                    <!-- Role Selector Container (Admin / User / Viewer) -->
+                    <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-2xl border theme-border text-xs">
+                        <span class="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">ROLE:</span>
+                        <div class="flex items-center gap-1">
+                            <span class="px-3 py-1 rounded-xl font-extrabold text-xs shadow-md transition-all {% if current_user.role == 'admin' %}bg-gradient-to-r from-amber-500 to-amber-600 text-black ring-2 ring-white/20{% else %}theme-text-muted opacity-60{% endif %}">
+                                Admin
+                            </span>
+                            <span class="px-3 py-1 rounded-xl font-bold text-xs transition-all {% if current_user.role == 'user' %}bg-emerald-500 text-black ring-2 ring-white/20{% else %}theme-text-muted opacity-60{% endif %}">
+                                User
+                            </span>
+                            <span class="px-3 py-1 rounded-xl font-bold text-xs transition-all {% if current_user.role == 'viewer' %}bg-sky-500 text-black ring-2 ring-white/20{% else %}theme-text-muted opacity-60{% endif %}">
+                                Viewer
+                            </span>
+                        </div>
                     </div>
-                    <a href="{{ url_for('logout') }}" class="bg-red-800/70 hover:bg-red-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-500/30 transition">Logout</a>
+
+                    <!-- User Avatar Badge -->
+                    <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-black font-extrabold text-xs flex items-center justify-center shadow-md uppercase tracking-wider border border-amber-300/40">
+                        {{ current_user.username[:2] }}
+                    </div>
+
+                    <a href="{{ url_for('logout') }}" class="bg-red-900/60 hover:bg-red-800 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-red-500/30 transition">Logout</a>
                     {% endif %}
 
-                    <!-- Theme Switcher Dropdown -->
-                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-xs px-2.5 py-1.5 rounded-lg border theme-border focus:outline-none" style="color: var(--nav-text);">
+                    <!-- Dynamic Theme Selector -->
+                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-black/30 text-xs px-2.5 py-2 rounded-xl border theme-border focus:outline-none" style="color: var(--nav-text);">
                         <option value="system" class="text-black">💻 System Default</option>
                         <option value="emerald" class="text-black">Emerald Governance</option>
                         <option value="default" class="text-black">Graphite & Orange</option>
@@ -193,12 +201,12 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
+    <!-- Flash Messages Container -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="p-4 rounded-xl text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-900/30 border-red-500/50 text-red-200{% else %}bg-emerald-900/30 border-emerald-500/50 text-emerald-200{% endif %} shadow-md">
+                    <div class="p-4 rounded-xl text-sm font-medium mb-4 border {% if category == 'error' %}bg-red-900/40 border-red-500/50 text-red-200{% else %}bg-emerald-900/40 border-emerald-500/50 text-emerald-200{% endif %} shadow-md">
                         {{ message }}
                     </div>
                 {% endfor %}
