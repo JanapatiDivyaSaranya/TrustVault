@@ -3,10 +3,63 @@
 {% block title %}Dashboard - TrustVault{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-        <h1 class="text-3xl font-bold text-emerald-400">Welcome to TrustVault, {{ current_user.username }}!</h1>
-        <p class="text-gray-400 mt-2">Role: <strong class="text-white capitalize">{{ current_user.role }}</strong></p>
+<div class="space-y-8">
+    <!-- Welcome Header -->
+    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-emerald-400">Welcome back, {{ current_user.username }}!</h1>
+            <p class="text-gray-400 mt-1">Multi-Tenant Document Security & Governance Portal</p>
+        </div>
+        <span class="px-4 py-2 bg-emerald-900/60 border border-emerald-600 text-emerald-300 font-semibold rounded-lg text-sm">
+            Role: {{ current_user.role|capitalize }}
+        </span>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <h3 class="text-gray-400 text-sm font-medium">Total Uploaded Documents</h3>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ total_docs }}</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <h3 class="text-gray-400 text-sm font-medium">Registered Users</h3>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ total_users }}</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <h3 class="text-gray-400 text-sm font-medium">Security Status</h3>
+            <p class="text-2xl font-bold text-emerald-400 mt-2">Active (RBAC Enforced)</p>
+        </div>
+    </div>
+
+    <!-- Recent Audit Logs Preview -->
+    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-emerald-400">Recent Security Activity</h2>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('audit_logs') }}" class="text-xs text-emerald-400 hover:underline font-semibold">View All Logs &rarr;</a>
+            {% endif %}
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-300">
+                <thead class="bg-gray-900 text-emerald-400 uppercase text-xs">
+                    <tr>
+                        <th class="py-2.5 px-4">Time</th>
+                        <th class="py-2.5 px-4">User</th>
+                        <th class="py-2.5 px-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for log in logs %}
+                    <tr>
+                        <td class="py-2.5 px-4 font-mono text-xs text-gray-400">{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                        <td class="py-2.5 px-4 font-semibold text-white">{{ log.username }}</td>
+                        <td class="py-2.5 px-4 text-gray-200">{{ log.action }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
